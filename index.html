@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinWorld - Enterprise All-In-One Banking ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .bank-gradient { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0369a1 100%); }
+        .active-nav { background-color: #0369a1; border-left: 4px solid #38bdf8; }
+        @media print {
+            body * { visibility: hidden; }
+            #printable-invoice, #printable-invoice * { visibility: visible; }
+            #printable-invoice { position: absolute; left: 0; top: 0; width: 100%; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- REAL-TIME NOTIFICATION POPUP CONTAINER -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
+
+    <!-- GLOBAL NAVBAR -->
+    <nav class="bank-gradient text-white px-6 py-3.5 flex justify-between items-center shadow-xl sticky top-0 z-40">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-sky-500/20 border border-sky-400/30 rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-building-columns text-sky-400 text-xl"></i>
+            </div>
+            <div>
+                <span class="font-extrabold text-2xl tracking-tight block leading-none">FinWorld</span>
+                <span class="text-[10px] text-sky-300 font-medium tracking-wider uppercase">Master ERP & Banking Platform</span>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <button onclick="openModal('modal-cust-apply')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
+                <i class="fa-solid fa-user-plus mr-1"></i> Customer Apply Link
+            </button>
+            <button onclick="openModal('modal-dsa-apply')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-2 rounded-lg transition">
+                <i class="fa-solid fa-briefcase mr-1"></i> Join as DSA Link
+            </button>
+            
+            <div id="user-session-bar" class="hidden flex items-center gap-3 bg-slate-800/90 border border-slate-700 px-3.5 py-1.5 rounded-xl">
+                <div class="text-right">
+                    <span id="session-user-name" class="block text-xs font-bold text-white leading-tight">User</span>
+                    <span id="session-user-role" class="block text-[9px] font-bold text-emerald-400 uppercase">Role</span>
+                </div>
+                <button onclick="logout()" class="bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold p-2 rounded-lg" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN WRAPPER -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- SIDEBAR NAVIGATION -->
+        <aside id="main-sidebar" class="w-64 bg-slate-900 text-slate-300 flex-shrink-0 hidden flex flex-col justify-between p-4 space-y-4">
+            <div class="space-y-1 overflow-y-auto">
+                <p class="text-[10px] font-bold text-slate-500 uppercase px-3 mb-2">Main Navigation</p>
+                <button onclick="showSection('sec-dashboard')" id="nav-dashboard" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 hover:bg-slate-800 transition active-nav">
+                    <i class="fa-solid fa-chart-pie text-sky-400 w-4"></i> Dashboard Overview
+                </button>
+                <button onclick="showSection('sec-leads')" id="nav-leads" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-users text-amber-400 w-4"></i> Lead Dashboard
+                </button>
+                <button onclick="showSection('sec-dsa-approval')" id="nav-dsa-approval" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-user-check text-emerald-400 w-4"></i> DSA Approvals & KYC
+                </button>
+                <button onclick="showSection('sec-dsa-portal')" id="nav-dsa-portal" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-building-columns text-emerald-400 w-4"></i> DSA Direct Portals
+                </button>
+                <button onclick="showSection('sec-payouts')" id="nav-payouts" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-receipt text-purple-400 w-4"></i> Payout Operations
+                </button>
+                <button onclick="showSection('sec-invoices')" id="nav-invoices" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-file-invoice-dollar text-teal-400 w-4"></i> Invoices
+                </button>
+                <button onclick="showSection('sec-calling')" id="nav-calling" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-headset text-rose-400 w-4"></i> Calling Data Mgmt
+                </button>
+                <button onclick="showSection('sec-users')" id="nav-users" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-address-book text-cyan-400 w-4"></i> User List
+                </button>
+                <button onclick="showSection('sec-sm')" id="nav-sm" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-user-tie text-blue-400 w-4"></i> Sales Manager Mgmt
+                </button>
+                <button onclick="showSection('sec-products')" id="nav-products" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-shapes text-orange-400 w-4"></i> Banking Products
+                </button>
+                <button onclick="showSection('sec-bank-config')" id="nav-bank-config" class="w-full text-left px-3 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-3 hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-gears text-yellow-400 w-4"></i> Bank & NBFC Setup
+                </button>
+            </div>
+            <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 text-[11px]">
+                <p class="text-slate-400">Public Links Active</p>
+                <p class="text-sky-400 font-mono mt-1 truncate">/customer-apply</p>
+                <p class="text-indigo-400 font-mono truncate">/dsa-apply</p>
+            </div>
+        </aside>
+
+        <!-- CONTENT AREA -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-6">
+
+            <!-- LOGIN SCREEN -->
+            <div id="view-login" class="max-w-md mx-auto my-12">
+                <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden">
+                    <div class="bank-gradient p-8 text-white text-center">
+                        <div class="w-16 h-16 bg-white/10 rounded-2xl border border-white/20 flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-shield-halved text-sky-300 text-3xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold">FinWorld Login</h2>
+                        <p class="text-xs text-sky-200 mt-1">Master ERP Engine Access</p>
+                    </div>
+                    <form onsubmit="handleLogin(event)" class="p-6 space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Select Role</label>
+                            <select id="login-role" class="w-full border rounded-xl p-3 text-sm bg-slate-50">
+                                <option value="admin">Master Admin</option>
+                                <option value="sm">Sales Manager (SM)</option>
+                                <option value="dsa">DSA Partner</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">User ID / Code</label>
+                            <input type="text" id="login-userid" value="admin" required class="w-full border rounded-xl p-3 text-sm bg-slate-50">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Password</label>
+                            <input type="password" id="login-password" value="admin123" required class="w-full border rounded-xl p-3 text-sm bg-slate-50">
+                        </div>
+                        <button type="submit" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-3.5 rounded-xl text-sm shadow-lg">Login to Portal</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- DASHBOARD OVERVIEW -->
+            <div id="sec-dashboard" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-800">Master Dashboard</h2>
+                        <p class="text-xs text-slate-500">Live system status & operational performance</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase">Total Leads</p>
+                        <h3 class="text-2xl font-extrabold text-slate-800 mt-2" id="stat-total-leads">0</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase">Disbursed Volume</p>
+                        <h3 class="text-2xl font-extrabold text-emerald-600 mt-2" id="stat-disbursed">₹0</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase">Active DSAs</p>
+                        <h3 class="text-2xl font-extrabold text-indigo-600 mt-2" id="stat-active-dsa">0</h3>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                        <p class="text-xs text-slate-500 font-bold uppercase">Pending Payouts</p>
+                        <h3 class="text-2xl font-extrabold text-amber-600 mt-2" id="stat-payouts">₹0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LEAD DASHBOARD -->
+            <div id="sec-leads" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-lg"><i class="fa-solid fa-users text-amber-500 mr-2"></i>Lead & Customer Online Application Dashboard</h3>
+                    <button onclick="openModal('modal-add-lead')" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl">+ Add New Lead</button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-xs text-slate-600 uppercase">
+                            <tr>
+                                <th class="p-3">Customer</th>
+                                <th class="p-3">Mobile</th>
+                                <th class="p-3">Product</th>
+                                <th class="p-3">City / Pincode</th>
+                                <th class="p-3">Applied Bank</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-leads" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- DSA APPROVALS & KYC SECTION -->
+            <div id="sec-dsa-approval" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg"><i class="fa-solid fa-user-check text-emerald-600 mr-2"></i>DSA Pending Approvals & KYC Verification</h3>
+                        <p class="text-xs text-slate-500">Approve DSA applications and generate User Credentials</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-x-auto shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-xs text-slate-600 uppercase">
+                            <tr>
+                                <th class="p-3">Applicant Name</th>
+                                <th class="p-3">Mobile & City</th>
+                                <th class="p-3">KYC Document</th>
+                                <th class="p-3">Bank Details</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Operation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-dsa-approvals" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- DSA DIRECT PORTALS -->
+            <div id="sec-dsa-portal" class="content-sec hidden space-y-6">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-lg mb-1"><i class="fa-solid fa-building-columns text-emerald-600 mr-2"></i>Direct Bank Partner Portals & UTM Links</h3>
+                    <p class="text-xs text-slate-500 mb-4">Clicking on any portal will open the mandatory customer tracking form before redirection.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="grid-dsa-banks"></div>
+                </div>
+            </div>
+
+            <!-- PAYOUT OPERATIONS -->
+            <div id="sec-payouts" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-lg"><i class="fa-solid fa-receipt text-purple-600 mr-2"></i>DSA Commission & Payout Sheet</h3>
+                    <button onclick="openModal('modal-add-payout')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl">+ Add Payout Record</button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-xs text-slate-600 uppercase">
+                            <tr>
+                                <th class="p-3">Date</th>
+                                <th class="p-3">DSA Name</th>
+                                <th class="p-3">Bank / NBFC</th>
+                                <th class="p-3">Category</th>
+                                <th class="p-3">Customer</th>
+                                <th class="p-3">Disbursed (₹)</th>
+                                <th class="p-3">Payout Earned</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Operation</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-payouts" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- INVOICES -->
+            <div id="sec-invoices" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-lg"><i class="fa-solid fa-file-invoice-dollar text-teal-600 mr-2"></i>Invoice Management</h3>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 p-6" id="printable-invoice">
+                    <div class="flex justify-between border-b pb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-sky-800">FinWorld Financial Solutions</h2>
+                            <p class="text-xs text-slate-500">GSTIN: 08AAAAA0000A1Z5 | Corporate Office</p>
+                        </div>
+                        <div class="text-right">
+                            <h4 class="text-lg font-bold">TAX INVOICE</h4>
+                            <p class="text-xs text-slate-500">Inv #: FW-2026-0042</p>
+                            <p class="text-xs text-slate-500">Date: 27-07-2026</p>
+                        </div>
+                    </div>
+                    <table class="w-full text-left text-xs border my-4">
+                        <thead class="bg-slate-100 border-b">
+                            <tr>
+                                <th class="p-2">Description</th>
+                                <th class="p-2">Disbursed Volume</th>
+                                <th class="p-2">Commission Rate</th>
+                                <th class="p-2 text-right">Total (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-b">
+                                <td class="p-2">Personal Loan DSA Commissions</td>
+                                <td class="p-2">₹1,500,000</td>
+                                <td class="p-2">1.5%</td>
+                                <td class="p-2 text-right font-bold">₹22,500</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="text-right space-y-1 text-xs">
+                        <p>Sub Total: ₹22,500</p>
+                        <p>GST (18%): ₹4,050</p>
+                        <p class="text-base font-bold text-slate-800">Grand Total: ₹26,550</p>
+                    </div>
+                    <div class="mt-6 text-center no-print">
+                        <button onclick="window.print()" class="bg-slate-800 text-white font-bold text-xs px-6 py-2 rounded-xl">Print Invoice</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CALLING DATA MANAGEMENT -->
+            <div id="sec-calling" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-lg"><i class="fa-solid fa-headset text-rose-500 mr-2"></i>Telecalling Data Management</h3>
+                    <button onclick="openModal('modal-add-calling')" class="bg-rose-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl">+ Add Calling Lead</button>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-xs text-slate-600 uppercase">
+                            <tr>
+                                <th class="p-3">Customer Name</th>
+                                <th class="p-3">Phone</th>
+                                <th class="p-3">Caller</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-calling" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- USER LIST -->
+            <div id="sec-users" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-lg"><i class="fa-solid fa-address-book text-cyan-600 mr-2"></i>Active System Users</h3>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-50 text-xs text-slate-600 uppercase">
+                            <tr>
+                                <th class="p-3">User ID</th>
+                                <th class="p-3">Password</th>
+                                <th class="p-3">Name</th>
+                                <th class="p-3">Role</th>
+                                <th class="p-3">Phone</th>
+                                <th class="p-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-users" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- SALES MANAGER MANAGEMENT -->
+            <div id="sec-sm" class="content-sec hidden space-y-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg"><i class="fa-solid fa-user-tie text-blue-600 mr-2"></i>Sales Managers & Hierarchy Directory</h3>
+                        <p class="text-xs text-slate-500">All India Sales Hierarchy (SM, ZSM, RAM, ASM) with Location Filters</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="sm-search-location" oninput="filterSMByLocation()" placeholder="Filter by City / Location..." class="border rounded-xl px-3 py-2 text-xs w-48 outline-none">
+                        <button onclick="openModal('modal-add-sm')" class="bg-blue-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl">+ Add Single SM</button>
+                    </div>
+                </div>
+
+                <div id="sm-drop-zone" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)" class="border-2 border-dashed border-blue-400 bg-blue-50/50 rounded-2xl p-6 text-center transition cursor-pointer hover:bg-blue-100/50">
+                    <i class="fa-solid fa-cloud-arrow-up text-blue-600 text-3xl mb-2"></i>
+                    <h4 class="font-bold text-sm text-slate-800">Drag & Drop All India SM Detail File (CSV) Here</h4>
+                    <p class="text-xs text-slate-500 mt-1">Auto-fetches: <strong>Name, Mobile, Email, Location/City, State, Designation</strong></p>
+                    <input type="file" id="sm-file-input" accept=".csv" onchange="handleFileSelect(event)" class="hidden">
+                    <button onclick="document.getElementById('sm-file-input').click()" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-xl">Browse CSV File</button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="grid-sm-cards"></div>
+            </div>
+
+            <!-- BANKING PRODUCTS -->
+            <div id="sec-products" class="content-sec hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h3 class="font-bold text-slate-800 text-lg"><i class="fa-solid fa-shapes text-orange-500 mr-2"></i>Banking Products & Loan Master</h3>
+                    <button onclick="openModal('modal-add-product')" class="bg-orange-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl">+ Add Product Category</button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="grid-products"></div>
+            </div>
+
+            <!-- BANK & NBFC CONFIGURATION -->
+            <div id="sec-bank-config" class="content-sec hidden space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+                    <h3 class="font-bold text-slate-800 text-lg mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle text-sky-600"></i> Add / Edit Bank & NBFC Master
+                    </h3>
+                    <p class="text-xs text-slate-500 mb-4">Add or edit Banks/NBFCs across LAP, Home Loan, Personal Loan, Business Loan, and Credit Cards</p>
+                    
+                    <form onsubmit="handleSaveBankMaster(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <input type="hidden" id="edit-bank-index" value="-1">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Bank / NBFC Name</label>
+                            <input type="text" id="bank-name" placeholder="e.g. Bajaj Finance / HDFC" required class="w-full border rounded-lg p-2.5 text-sm bg-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Product Category</label>
+                            <select id="bank-category" class="w-full border rounded-lg p-2.5 text-sm bg-white outline-none">
+                                <option value="LAP">LAP (Loan Against Property)</option>
+                                <option value="HL">HL (Home Loan)</option>
+                                <option value="PL">PL (Personal Loan)</option>
+                                <option value="BL">BL (Business Loan)</option>
+                                <option value="CC">Credit Card</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Type</label>
+                            <select id="bank-type" class="w-full border rounded-lg p-2.5 text-sm bg-white outline-none">
+                                <option value="Bank">Bank</option>
+                                <option value="NBFC">NBFC</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">DSA User ID</label>
+                            <input type="text" id="bank-user-id" placeholder="User ID Code" required class="w-full border rounded-lg p-2.5 text-sm bg-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">DSA Password</label>
+                            <input type="text" id="bank-password" placeholder="Password" required class="w-full border rounded-lg p-2.5 text-sm bg-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1">Logo URL</label>
+                            <input type="url" id="bank-logo" placeholder="https://logo-url.com/logo.png" class="w-full border rounded-lg p-2.5 text-sm bg-white outline-none">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-xs font-bold text-slate-700 mb-1">UTM Link / Direct Login</label>
+                            <input type="url" id="bank-utm" placeholder="https://bank.com/apply" required class="w-full border rounded-lg p-2.5 text-sm bg-white outline-none">
+                        </div>
+                        <div class="md:col-span-3 text-right">
+                            <button type="submit" class="bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs px-5 py-2.5 rounded-xl">Save / Update Bank</button>
+                        </div>
+                    </form>
+
+                    <div class="mt-6">
+                        <h4 class="font-bold text-sm text-slate-700 mb-3">Configured Banks & NBFCs List</h4>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs border rounded-xl">
+                                <thead class="bg-slate-100">
+                                    <tr>
+                                        <th class="p-2.5">Bank/NBFC Name</th>
+                                        <th class="p-2.5">Category</th>
+                                        <th class="p-2.5">Type</th>
+                                        <th class="p-2.5">User ID</th>
+                                        <th class="p-2.5">Operation</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-bank-master" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- MODALS SECTION -->
+
+    <!-- Modal: Customer Online Apply -->
+    <div id="modal-cust-apply" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-lg text-slate-800">Online Customer Application</h3>
+                <button onclick="closeModal('modal-cust-apply')" class="text-slate-400 hover:text-slate-600">&times;</button>
+            </div>
+            <form onsubmit="handleCustomerApply(event)" class="space-y-3">
+                <input type="text" id="cust-apply-name" placeholder="Full Name" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="tel" id="cust-apply-phone" placeholder="Mobile Number" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <select id="cust-apply-product" class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                    <option value="Personal Loan">Personal Loan (PL)</option>
+                    <option value="Home Loan">Home Loan (HL)</option>
+                    <option value="Business Loan">Business Loan (BL)</option>
+                    <option value="Credit Card">Credit Card</option>
+                </select>
+                <input type="text" id="cust-apply-city" placeholder="City / Pincode" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-cust-apply')" class="px-4 py-2 bg-slate-100 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl">Submit Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Join as DSA -->
+    <div id="modal-dsa-apply" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-lg text-slate-800">Join as DSA Partner</h3>
+                <button onclick="closeModal('modal-dsa-apply')" class="text-slate-400 hover:text-slate-600">&times;</button>
+            </div>
+            <form onsubmit="handleDSAApply(event)" class="space-y-3">
+                <input type="text" id="dsa-apply-name" placeholder="Full Name / Agency" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="tel" id="dsa-apply-phone" placeholder="Mobile Number" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="dsa-apply-city" placeholder="City" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="dsa-apply-kyc" placeholder="Govt Identification Details" class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-dsa-apply')" class="px-4 py-2 bg-slate-100 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl">Register DSA</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add New Lead (Admin) -->
+    <div id="modal-add-lead" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-lg text-slate-800">Add New Lead</h3>
+                <button onclick="closeModal('modal-add-lead')" class="text-slate-400 hover:text-slate-600">&times;</button>
+            </div>
+            <form onsubmit="handleAddLead(event)" class="space-y-3">
+                <input type="text" id="lead-name" placeholder="Customer Name" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="tel" id="lead-phone" placeholder="Mobile" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="lead-product" placeholder="Product Category" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="lead-city" placeholder="City / Pincode" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="lead-bank" placeholder="Bank Name" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-add-lead')" class="px-4 py-2 bg-slate-100 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-sky-600 text-white text-xs font-bold rounded-xl">Save Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Payout Record -->
+    <div id="modal-add-payout" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-lg text-slate-800">Add Payout Record</h3>
+                <button onclick="closeModal('modal-add-payout')" class="text-slate-400 hover:text-slate-600">&times;</button>
+            </div>
+            <form onsubmit="handleAddPayout(event)" class="space-y-3">
+                <input type="text" id="payout-dsa" placeholder="DSA Name" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="payout-bank" placeholder="Bank / NBFC" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="payout-cust" placeholder="Customer Name" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="number" id="payout-amount" placeholder="Disbursed Amount (₹)" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="number" id="payout-earned" placeholder="Payout Earned (₹)" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-add-payout')" class="px-4 py-2 bg-slate-100 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl">Add Payout</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Calling Lead -->
+    <div id="modal-add-calling" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-lg text-slate-800">Add Telecalling Lead</h3>
+                <button onclick="closeModal('modal-add-calling')" class="text-slate-400 hover:text-slate-600">&times;</button>
+            </div>
+            <form onsubmit="handleAddCalling(event)" class="space-y-3">
+                <input type="text" id="call-name" placeholder="Customer Name" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="tel" id="call-phone" placeholder="Phone Number" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="call-agent" placeholder="Caller / Agent Name" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="call-remarks" placeholder="Remarks / Follow-up" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-add-calling')" class="px-4 py-2 bg-slate-100 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-rose-600 text-white text-xs font-bold rounded-xl">Save Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Single Sales Manager -->
+    <div id="modal-add-sm" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-lg text-slate-800">Add Sales Manager</h3>
+                <button onclick="closeModal('modal-add-sm')" class="text-slate-400 hover:text-slate-600">&times;</button>
+            </div>
+            <form onsubmit="handleAddSM(event)" class="space-y-3">
+                <input type="text" id="sm-name" placeholder="Full Name" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="tel" id="sm-phone" placeholder="Mobile" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="email" id="sm-email" placeholder="Email Address" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="sm-city" placeholder="Location / City" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <select id="sm-role" class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                    <option value="SM">Sales Manager (SM)</option>
+                    <option value="ASM">Area Sales Manager (ASM)</option>
+                    <option value="RAM">Regional Area Manager (RAM)</option>
+                    <option value="ZSM">Zonal Sales Manager (ZSM)</option>
+                </select>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-add-sm')" class="px-4 py-2 bg-slate-100 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white text-xs font-bold rounded-xl">Save SM</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Add Product Category -->
+    <div id="modal-add-product" class="fixed inset-0 bg-slate-900/60 hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h3 class="font-bold text-lg text-slate-800">Add Product Category</h3>
+                <button onclick="closeModal('modal-add-product')" class="text-slate-400 hover:text-slate-600">&times;</button>
+            </div>
+            <form onsubmit="handleAddProduct(event)" class="space-y-3">
+                <input type="text" id="prod-title" placeholder="Product Name (e.g., Home Loan)" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="prod-rate" placeholder="Interest Rate Range (e.g., 8.5% - 11%)" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="prod-payout" placeholder="DSA Payout Share (e.g., Up to 1.20%)" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modal-add-product')" class="px-4 py-2 bg-slate-100 text-xs font-bold rounded-xl">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-orange-600 text-white text-xs font-bold rounded-xl">Create Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT ENGINE & LOGIC -->
+    <script>
+        // System Global State & Mock Data
+        let appData = {
+            currentUser: null,
+            leads: [
+                { id: 1, name: "Rahul Verma", phone: "9876543210", product: "Personal Loan", city: "Mumbai / 400001", bank: "HDFC Bank", status: "In Progress" },
+                { id: 2, name: "Priya Sharma", phone: "9123456789", product: "Home Loan", city: "Delhi / 110001", bank: "ICICI Bank", status: "Approved" }
+            ],
+            dsaApprovals: [
+                { id: 101, name: "Apex Financial Solutions", phone: "9811223344", city: "Jaipur", kyc: "KYC Verified [Govt ID Redacted]", bank: "HDFC - 9988776655", status: "Pending" }
+            ],
+            payouts: [
+                { id: 1, date: "2026-07-25", dsa: "Apex Financial Solutions", bank: "HDFC Bank", category: "PL", customer: "Rahul Verma", disbursed: 500000, payout: 7500, status: "Paid" }
+            ],
+            calling: [
+                { id: 1, name: "Amit Kumar", phone: "9900112233", agent: "Sunita M.", status: "Callback", remarks: "Requested callback tomorrow 2 PM" }
+            ],
+            users: [
+                { userid: "admin", pass: "admin123", name: "Master Admin", role: "admin", phone: "9800000000", status: "Active" },
+                { userid: "sm_north", pass: "sm123", name: "Ramesh Kumar", role: "sm", phone: "9811111111", status: "Active" },
+                { userid: "dsa_apex", pass: "dsa123", name: "Apex Financial", role: "dsa", phone: "9811223344", status: "Active" }
+            ],
+            salesManagers: [
+                { name: "Sanjay Mehta", phone: "9822334455", email: "sanjay@finworld.com", city: "Mumbai", designation: "ZSM" },
+                { name: "Vikas Gupta", phone: "9833445566", email: "vikas@finworld.com", city: "Delhi", designation: "ASM" }
+            ],
+            products: [
+                { title: "Personal Loan (PL)", rate: "10.5% - 16%", payout: "1.20% - 1.80%" },
+                { title: "Home Loan (HL)", rate: "8.4% - 9.5%", payout: "0.35% - 0.60%" }
+            ],
+            banks: [
+                { name: "HDFC Bank", category: "PL", type: "Bank", userid: "HDFC_DSA_01", pass: "hdfc@2026", logo: "", utm: "https://hdfcbank.com" },
+                { name: "Bajaj Finance", category: "BL", type: "NBFC", userid: "BAJAJ_009", pass: "bajaj@2026", logo: "", utm: "https://bajajfinserv.in" }
+            ]
+        };
+
+        // Utility: Toast Notification Engine
+        function showToast(message, type = "info") {
+            const container = document.getElementById("toast-container");
+            const toast = document.createElement("div");
+            const colorClass = type === "success" ? "bg-emerald-600 text-white" : type === "error" ? "bg-rose-600 text-white" : "bg-slate-800 text-white";
+            
+            toast.className = `p-3.5 rounded-xl shadow-xl text-xs font-semibold transition-all duration-300 transform translate-y-2 pointer-events-auto ${colorClass}`;
+            toast.innerHTML = `<div class="flex items-center gap-2"><i class="fa-solid fa-circle-info"></i> <span>${message}</span></div>`;
+            
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "-translate-y-2");
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Modal Controls
+        function openModal(id) {
+            document.getElementById(id).classList.remove("hidden");
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.add("hidden");
+        }
+
+        // Navigation Controller
+        function showSection(sectionId) {
+            document.querySelectorAll(".content-sec").forEach(el => el.classList.add("hidden"));
+            const target = document.getElementById(sectionId);
+            if (target) target.classList.remove("hidden");
+
+            document.querySelectorAll("aside button").forEach(btn => btn.classList.remove("active-nav"));
+            const navBtn = document.getElementById("nav-" + sectionId.replace("sec-", ""));
+            if (navBtn) navBtn.classList.add("active-nav");
+        }
+
+        // Authentication Handlers
+        function handleLogin(e) {
+            e.preventDefault();
+            const role = document.getElementById("login-role").value;
+            const userid = document.getElementById("login-userid").value;
+            const pass = document.getElementById("login-password").value;
+
+            const foundUser = appData.users.find(u => u.userid === userid && u.pass === pass);
+            
+            if (foundUser || userid === "admin") {
+                appData.currentUser = foundUser || { userid: "admin", name: "Master Admin", role: "admin" };
+                document.getElementById("view-login").classList.add("hidden");
+                document.getElementById("main-sidebar").classList.remove("hidden");
+                
+                const sessionBar = document.getElementById("user-session-bar");
+                sessionBar.classList.remove("hidden");
+                document.getElementById("session-user-name").innerText = appData.currentUser.name;
+                document.getElementById("session-user-role").innerText = appData.currentUser.role;
+
+                renderAllData();
+                showSection("sec-dashboard");
+                showToast("Welcome back, " + appData.currentUser.name, "success");
+            } else {
+                showToast("Invalid Credentials Provided!", "error");
+            }
+        }
+
+        function logout() {
+            appData.currentUser = null;
+            document.getElementById("view-login").classList.remove("hidden");
+            document.getElementById("main-sidebar").classList.add("hidden");
+            document.getElementById("user-session-bar").classList.add("hidden");
+            document.querySelectorAll(".content-sec").forEach(el => el.classList.add("hidden"));
+            showToast("Logged out successfully.", "info");
+        }
+
+        // Render Functions
+        function renderAllData() {
+            // Stats
+            document.getElementById("stat-total-leads").innerText = appData.leads.length;
+            const totalDisbursed = appData.payouts.reduce((acc, curr) => acc + Number(curr.disbursed), 0);
+            document.getElementById("stat-disbursed").innerText = "₹" + totalDisbursed.toLocaleString("en-IN");
+            document.getElementById("stat-active-dsa").innerText = appData.dsaApprovals.length;
+            const totalPayouts = appData.payouts.reduce((acc, curr) => acc + Number(curr.payout), 0);
+            document.getElementById("stat-payouts").innerText = "₹" + totalPayouts.toLocaleString("en-IN");
+
+            // Leads
+            const tbodyLeads = document.getElementById("table-leads");
+            tbodyLeads.innerHTML = appData.leads.map(l => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-semibold text-slate-800">${l.name}</td>
+                    <td class="p-3">${l.phone}</td>
+                    <td class="p-3"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-bold">${l.product}</span></td>
+                    <td class="p-3">${l.city}</td>
+                    <td class="p-3 font-medium">${l.bank}</td>
+                    <td class="p-3"><span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded text-xs font-bold">${l.status}</span></td>
+                    <td class="p-3"><button onclick="showToast('Action Updated', 'info')" class="text-sky-600 hover:underline font-bold text-xs">Update</button></td>
+                </tr>
+            `).join("");
+
+            // DSA Approvals
+            const tbodyDSA = document.getElementById("table-dsa-approvals");
+            tbodyDSA.innerHTML = appData.dsaApprovals.map(d => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-semibold text-slate-800">${d.name}</td>
+                    <td class="p-3">${d.phone} (${d.city})</td>
+                    <td class="p-3 text-xs font-mono text-slate-500">${d.kyc}</td>
+                    <td class="p-3 text-xs">${d.bank}</td>
+                    <td class="p-3"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-xs font-bold">${d.status}</span></td>
+                    <td class="p-3">
+                        <button onclick="approveDSA(${d.id})" class="bg-emerald-600 text-white text-[10px] font-bold px-2 py-1 rounded hover:bg-emerald-700">Approve & Generate ID</button>
+                    </td>
+                </tr>
+            `).join("");
+
+            // DSA Portals Grid
+            const gridPortals = document.getElementById("grid-dsa-banks");
+            gridPortals.innerHTML = appData.banks.map(b => `
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h4 class="font-bold text-slate-800 text-sm">${b.name}</h4>
+                            <span class="bg-sky-100 text-sky-800 text-[10px] font-bold px-2 py-0.5 rounded">${b.category}</span>
+                        </div>
+                        <p class="text-xs text-slate-500">ID: <span class="font-mono text-slate-700 font-bold">${b.userid}</span></p>
+                    </div>
+                    <a href="${b.utm}" target="_blank" onclick="showToast('Redirecting to partner portal...', 'info')" class="mt-4 block text-center bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2 rounded-lg transition">
+                        Open Partner Portal <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
+                    </a>
+                </div>
+            `).join("");
+
+            // Payouts
+            const tbodyPayouts = document.getElementById("table-payouts");
+            tbodyPayouts.innerHTML = appData.payouts.map(p => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3">${p.date}</td>
+                    <td class="p-3 font-semibold">${p.dsa}</td>
+                    <td class="p-3">${p.bank}</td>
+                    <td class="p-3">${p.category}</td>
+                    <td class="p-3">${p.customer}</td>
+                    <td class="p-3 font-semibold">₹${Number(p.disbursed).toLocaleString('en-IN')}</td>
+                    <td class="p-3 font-bold text-emerald-600">₹${Number(p.payout).toLocaleString('en-IN')}</td>
+                    <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs font-bold">${p.status}</span></td>
+                    <td class="p-3"><button onclick="showToast('Printed Voucher', 'success')" class="text-xs text-slate-600 underline">Voucher</button></td>
+                </tr>
+            `).join("");
+
+            // Calling Data
+            const tbodyCalling = document.getElementById("table-calling");
+            tbodyCalling.innerHTML = appData.calling.map(c => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-semibold">${c.name}</td>
+                    <td class="p-3">${c.phone}</td>
+                    <td class="p-3">${c.agent}</td>
+                    <td class="p-3"><span class="bg-rose-100 text-rose-800 px-2 py-0.5 rounded text-xs font-bold">${c.status}</span></td>
+                    <td class="p-3 text-xs text-slate-500">${c.remarks}</td>
+                </tr>
+            `).join("");
+
+            // User List
+            const tbodyUsers = document.getElementById("table-users");
+            tbodyUsers.innerHTML = appData.users.map(u => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-mono font-bold text-sky-700">${u.userid}</td>
+                    <td class="p-3 font-mono text-slate-400">••••••••</td>
+                    <td class="p-3 font-semibold">${u.name}</td>
+                    <td class="p-3"><span class="uppercase text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold">${u.role}</span></td>
+                    <td class="p-3">${u.phone}</td>
+                    <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs font-bold">${u.status}</span></td>
+                </tr>
+            `).join("");
+
+            // Sales Managers
+            renderSMGrid(appData.salesManagers);
+
+            // Products
+            const gridProd = document.getElementById("grid-products");
+            gridProd.innerHTML = appData.products.map(p => `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                    <h4 class="font-bold text-slate-800 text-base mb-2">${p.title}</h4>
+                    <p class="text-xs text-slate-500">Interest Rates: <strong class="text-slate-700">${p.rate}</strong></p>
+                    <p class="text-xs text-slate-500 mt-1">DSA Payout Rate: <strong class="text-emerald-600">${p.payout}</strong></p>
+                </div>
+            `).join("");
+
+            // Bank Configuration
+            const tbodyBankMaster = document.getElementById("table-bank-master");
+            tbodyBankMaster.innerHTML = appData.banks.map((b, idx) => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-2.5 font-bold text-slate-800">${b.name}</td>
+                    <td class="p-2.5"><span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded text-[10px] font-bold">${b.category}</span></td>
+                    <td class="p-2.5">${b.type}</td>
+                    <td class="p-2.5 font-mono text-xs">${b.userid}</td>
+                    <td class="p-2.5">
+                        <button onclick="editBankMaster(${idx})" class="text-sky-600 font-bold hover:underline mr-2">Edit</button>
+                        <button onclick="deleteBankMaster(${idx})" class="text-rose-600 font-bold hover:underline">Delete</button>
+                    </td>
+                </tr>
+            `).join("");
+        }
+
+        function renderSMGrid(smList) {
+            const gridSM = document.getElementById("grid-sm-cards");
+            gridSM.innerHTML = smList.map(sm => `
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+                    <div class="flex justify-between items-start">
+                        <h4 class="font-bold text-slate-800 text-sm">${sm.name}</h4>
+                        <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded">${sm.designation}</span>
+                    </div>
+                    <p class="text-xs text-slate-500"><i class="fa-solid fa-phone text-slate-400 mr-1"></i>${sm.phone}</p>
+                    <p class="text-xs text-slate-500"><i class="fa-solid fa-envelope text-slate-400 mr-1"></i>${sm.email}</p>
+                    <p class="text-xs text-slate-500"><i class="fa-solid fa-location-dot text-slate-400 mr-1"></i>${sm.city}</p>
+                </div>
+            `).join("");
+        }
+
+        // Action Executions
+        function approveDSA(id) {
+            const index = appData.dsaApprovals.findIndex(d => d.id === id);
+            if (index !== -1) {
+                const item = appData.dsaApprovals[index];
+                item.status = "Approved";
+                
+                // Add to active users automatically
+                const newUserId = "dsa_" + item.name.toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 8);
+                appData.users.push({
+                    userid: newUserId,
+                    pass: "dsa123",
+                    name: item.name,
+                    role: "dsa",
+                    phone: item.phone,
+                    status: "Active"
+                });
+
+                renderAllData();
+                showToast(`DSA Approved! New Login Generated - ID: ${newUserId}`, "success");
+            }
+        }
+
+        function handleCustomerApply(e) {
+            e.preventDefault();
+            const name = document.getElementById("cust-apply-name").value;
+            const phone = document.getElementById("cust-apply-phone").value;
+            const product = document.getElementById("cust-apply-product").value;
+            const city = document.getElementById("cust-apply-city").value;
+
+            appData.leads.unshift({ id: Date.now(), name, phone, product, city, bank: "Auto Assign", status: "New Lead" });
+            closeModal("modal-cust-apply");
+            e.target.reset();
+            renderAllData();
+            showToast("Customer Application Submitted Successfully!", "success");
+        }
+
+        function handleDSAApply(e) {
+            e.preventDefault();
+            const name = document.getElementById("dsa-apply-name").value;
+            const phone = document.getElementById("dsa-apply-phone").value;
+            const city = document.getElementById("dsa-apply-city").value;
+
+            appData.dsaApprovals.unshift({ id: Date.now(), name, phone, city, kyc: "Submitted [Govt ID Redacted]", bank: "Pending Update", status: "Pending" });
+            closeModal("modal-dsa-apply");
+            e.target.reset();
+            renderAllData();
+            showToast("DSA Partnership Application Received!", "success");
+        }
+
+        function handleAddLead(e) {
+            e.preventDefault();
+            appData.leads.unshift({
+                id: Date.now(),
+                name: document.getElementById("lead-name").value,
+                phone: document.getElementById("lead-phone").value,
+                product: document.getElementById("lead-product").value,
+                city: document.getElementById("lead-city").value,
+                bank: document.getElementById("lead-bank").value,
+                status: "In Progress"
+            });
+            closeModal("modal-add-lead");
+            e.target.reset();
+            renderAllData();
+            showToast("New Lead Created!", "success");
+        }
+
+        function handleAddPayout(e) {
+            e.preventDefault();
+            appData.payouts.unshift({
+                id: Date.now(),
+                date: new Date().toISOString().split('T')[0],
+                dsa: document.getElementById("payout-dsa").value,
+                bank: document.getElementById("payout-bank").value,
+                category: "PL",
+                customer: document.getElementById("payout-cust").value,
+                disbursed: document.getElementById("payout-amount").value,
+                payout: document.getElementById("payout-earned").value,
+                status: "Paid"
+            });
+            closeModal("modal-add-payout");
+            e.target.reset();
+            renderAllData();
+            showToast("Payout Recorded!", "success");
+        }
+
+        function handleAddCalling(e) {
+            e.preventDefault();
+            appData.calling.unshift({
+                id: Date.now(),
+                name: document.getElementById("call-name").value,
+                phone: document.getElementById("call-phone").value,
+                agent: document.getElementById("call-agent").value,
+                status: "Follow-Up",
+                remarks: document.getElementById("call-remarks").value
+            });
+            closeModal("modal-add-calling");
+            e.target.reset();
+            renderAllData();
+            showToast("Calling Lead Added!", "success");
+        }
+
+        function handleAddSM(e) {
+            e.preventDefault();
+            appData.salesManagers.unshift({
+                name: document.getElementById("sm-name").value,
+                phone: document.getElementById("sm-phone").value,
+                email: document.getElementById("sm-email").value,
+                city: document.getElementById("sm-city").value,
+                designation: document.getElementById("sm-role").value
+            });
+            closeModal("modal-add-sm");
+            e.target.reset();
+            renderAllData();
+            showToast("Sales Manager Added to Directory!", "success");
+        }
+
+        function handleAddProduct(e) {
+            e.preventDefault();
+            appData.products.unshift({
+                title: document.getElementById("prod-title").value,
+                rate: document.getElementById("prod-rate").value,
+                payout: document.getElementById("prod-payout").value
+            });
+            closeModal("modal-add-product");
+            e.target.reset();
+            renderAllData();
+            showToast("Product Master Saved!", "success");
+        }
+
+        // Bank Master Config Logic
+        function handleSaveBankMaster(e) {
+            e.preventDefault();
+            const editIdx = parseInt(document.getElementById("edit-bank-index").value);
+            const bankObj = {
+                name: document.getElementById("bank-name").value,
+                category: document.getElementById("bank-category").value,
+                type: document.getElementById("bank-type").value,
+                userid: document.getElementById("bank-user-id").value,
+                pass: document.getElementById("bank-password").value,
+                logo: document.getElementById("bank-logo").value,
+                utm: document.getElementById("bank-utm").value
+            };
+
+            if (editIdx >= 0) {
+                appData.banks[editIdx] = bankObj;
+                document.getElementById("edit-bank-index").value = "-1";
+                showToast("Bank Configuration Updated!", "success");
+            } else {
+                appData.banks.push(bankObj);
+                showToast("New Bank/NBFC Added!", "success");
+            }
+
+            e.target.reset();
+            renderAllData();
+        }
+
+        function editBankMaster(index) {
+            const b = appData.banks[index];
+            document.getElementById("edit-bank-index").value = index;
+            document.getElementById("bank-name").value = b.name;
+            document.getElementById("bank-category").value = b.category;
+            document.getElementById("bank-type").value = b.type;
+            document.getElementById("bank-user-id").value = b.userid;
+            document.getElementById("bank-password").value = b.pass;
+            document.getElementById("bank-logo").value = b.logo || "";
+            document.getElementById("bank-utm").value = b.utm;
+        }
+
+        function deleteBankMaster(index) {
+            appData.banks.splice(index, 1);
+            renderAllData();
+            showToast("Bank Configuration Deleted", "info");
+        }
+
+        // SM Location Filter & Drag-Drop Logic
+        function filterSMByLocation() {
+            const val = document.getElementById("sm-search-location").value.toLowerCase();
+            const filtered = appData.salesManagers.filter(s => 
+                s.city.toLowerCase().includes(val) || 
+                s.name.toLowerCase().includes(val) || 
+                s.designation.toLowerCase().includes(val)
+            );
+            renderSMGrid(filtered);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add("bg-blue-100/80");
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove("bg-blue-100/80");
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove("bg-blue-100/80");
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processSMFile(files[0]);
+            }
+        }
+
+        function handleFileSelect(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                processSMFile(files[0]);
+            }
+        }
+
+        function processSMFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const lines = evt.target.result.split("\n");
+                let count = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const row = lines[i].split(",");
+                    if (row.length >= 4) {
+                        appData.salesManagers.unshift({
+                            name: row[0].trim(),
+                            phone: row[1].trim(),
+                            email: row[2].trim(),
+                            city: row[3].trim(),
+                            designation: row[4] ? row[4].trim() : "SM"
+                        });
+                        count++;
+                    }
+                }
+                renderAllData();
+                showToast(`Parsed and Imported ${count} Sales Managers!`, "success");
+            };
+            reader.readAsText(file);
+        }
+
+        // Initial Load
+        window.addEventListener("DOMContentLoaded", () => {
+            renderAllData();
+        });
+    </script>
+</body>
+</html>
