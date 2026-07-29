@@ -1,637 +1,668 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial & DSA Management Dashboard</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GrowthHub Pro - Partner CRM Dashboard</title>
+  
+  <!-- CDNs -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+  <style>
+    /* Custom Scrollbar for Chat & Tables */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
 
-    <!-- Top Navigation Bar -->
-    <header class="bg-indigo-900 text-white p-4 shadow-md sticky top-0 z-40 flex justify-between items-center">
-        <div class="flex items-center space-x-3">
-            <i class="fa-solid fa-chart-line text-2xl text-emerald-400"></i>
-            <h1 class="text-xl font-bold tracking-wide">FinDSA Portal</h1>
+  <!-- Main Container -->
+  <div class="flex h-screen overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transition-all duration-300 z-20">
+      <div>
+        <!-- Logo / Brand -->
+        <div class="h-16 flex items-center justify-between px-6 bg-slate-950">
+          <div class="flex items-center space-x-3">
+            <i class="fa-solid fa-chart-line text-indigo-500 text-2xl"></i>
+            <span class="font-bold text-lg text-white tracking-wide">GrowthHub<span class="text-indigo-500">Pro</span></span>
+          </div>
         </div>
-        <nav class="flex items-center space-x-4">
-            <button onclick="showSection('dashboard')" class="hover:text-emerald-400 font-medium text-sm"><i class="fa-solid fa-house mr-1"></i>Dashboard</button>
-            <button onclick="showSection('leads')" class="hover:text-emerald-400 font-medium text-sm"><i class="fa-solid fa-users mr-1"></i>Leads</button>
-            <button onclick="showSection('payouts')" class="hover:text-emerald-400 font-medium text-sm"><i class="fa-solid fa-wallet mr-1"></i>Payouts</button>
-            <button onclick="showSection('dsa')" class="hover:text-emerald-400 font-medium text-sm"><i class="fa-solid fa-user-shield mr-1"></i>DSA Panel</button>
-            <button onclick="showSection('chat')" class="hover:text-emerald-400 font-medium text-sm"><i class="fa-solid fa-comments mr-1"></i>Chat</button>
+
+        <!-- Navigation Links -->
+        <nav class="mt-6 px-4 space-y-1">
+          <a href="#" onclick="switchTab('analytics')" id="nav-analytics" class="flex items-center px-4 py-3 text-slate-100 bg-indigo-600 rounded-xl transition duration-200">
+            <i class="fa-solid fa-house w-6 text-center"></i>
+            <span class="ml-3 font-medium">Dashboard</span>
+          </a>
+          <a href="#" onclick="switchTab('leads')" id="nav-leads" class="flex items-center px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition duration-200">
+            <i class="fa-solid fa-users w-6 text-center"></i>
+            <span class="ml-3 font-medium">Leads Management</span>
+          </a>
+          <a href="#" onclick="switchTab('payouts')" id="nav-payouts" class="flex items-center px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition duration-200">
+            <i class="fa-solid fa-wallet w-6 text-center"></i>
+            <span class="ml-3 font-medium">Payouts & Wallet</span>
+          </a>
+          <a href="#" onclick="switchTab('users')" id="nav-users" class="flex items-center px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition duration-200">
+            <i class="fa-solid fa-user-shield w-6 text-center"></i>
+            <span class="ml-3 font-medium">User Management</span>
+          </a>
+          <a href="#" onclick="switchTab('marketing')" id="nav-marketing" class="flex items-center px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition duration-200">
+            <i class="fa-solid fa-bullhorn w-6 text-center"></i>
+            <span class="ml-3 font-medium">Marketing Offers</span>
+          </a>
+          <a href="#" onclick="switchTab('chat')" id="nav-chat" class="flex items-center px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition duration-200">
+            <i class="fa-solid fa-comments w-6 text-center"></i>
+            <span class="ml-3 font-medium">Chat & Support</span>
+          </a>
         </nav>
-    </header>
+      </div>
 
-    <main class="p-6 max-w-7xl mx-auto space-y-6">
+      <!-- Current User Info -->
+      <div class="p-4 border-t border-slate-800">
+        <div class="flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl">
+          <img id="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" class="w-10 h-10 rounded-full object-cover" alt="User">
+          <div class="overflow-hidden">
+            <h4 id="user-name" class="text-sm font-semibold text-white truncate">Ananya Sharma</h4>
+            <p id="user-role" class="text-xs text-indigo-400 capitalize">Admin</p>
+          </div>
+        </div>
+      </div>
+    </aside>
 
-        <!-- Marketing Banner -->
-        <div id="dashboard-marketing-banner" class="hidden bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-4 rounded-xl shadow-md flex justify-between items-center">
-            <div>
-                <h3 id="dash-offer-title" class="font-bold text-lg"></h3>
-                <p id="dash-offer-desc" class="text-xs text-purple-100"></p>
-            </div>
-            <span class="bg-emerald-400 text-indigo-950 text-xs font-extrabold px-3 py-1 rounded-full uppercase">Special</span>
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col h-screen overflow-y-auto">
+      
+      <!-- Top Header -->
+      <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10 glass-effect">
+        <div class="flex items-center space-x-4">
+          <h1 id="page-title" class="text-xl font-bold text-slate-800">Dashboard Overview</h1>
         </div>
 
-        <!-- Dashboard Section -->
-        <section id="sec-dashboard" class="app-section space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <p class="text-xs font-bold text-slate-400 uppercase">Total Leads</p>
-                    <h3 id="kpi-leads" class="text-2xl font-black text-slate-800 mt-1">0</h3>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <p class="text-xs font-bold text-slate-400 uppercase">Total Disbursed</p>
-                    <h3 id="kpi-disbursed" class="text-2xl font-black text-emerald-600 mt-1">₹0</h3>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <p class="text-xs font-bold text-slate-400 uppercase">Total Payouts</p>
-                    <h3 id="kpi-payouts" class="text-2xl font-black text-indigo-600 mt-1">₹0</h3>
-                </div>
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
-                    <p class="text-xs font-bold text-slate-400 uppercase">Conversion Rate</p>
-                    <h3 id="kpi-conversion" class="text-2xl font-black text-amber-500 mt-1">0%</h3>
-                </div>
-            </div>
+        <div class="flex items-center space-x-4">
+          <!-- Live Firebase Status Indicator -->
+          <div class="flex items-center space-x-2 text-xs bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full font-medium">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span>Firebase Connected</span>
+          </div>
 
-            <!-- Marketing Offers Grid -->
-            <div>
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="font-bold text-slate-800">Active Offers & Announcements</h3>
-                    <button onclick="openModal('modal-add-offer')" class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-indigo-700">
-                        <i class="fa-solid fa-plus mr-1"></i>Add Offer
-                    </button>
-                </div>
-                <div id="marketing-offers-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-            </div>
-        </section>
+          <!-- Add Lead Button -->
+          <button onclick="openModal('modal-add-lead')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 transition shadow-sm hover:shadow-indigo-200">
+            <i class="fa-solid fa-plus text-xs"></i>
+            <span>Add New Lead</span>
+          </button>
+        </div>
+      </header>
 
-        <!-- Leads Section -->
-        <section id="sec-leads" class="app-section hidden space-y-4">
-            <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                <input type="text" id="search-leads-input" onkeyup="renderLeadsTable()" placeholder="Search leads by name, phone, city..." class="border border-slate-300 rounded-lg px-3 py-1.5 text-xs w-64 focus:outline-none focus:border-indigo-500">
-                <div class="flex gap-2">
-                    <button onclick="exportToCSV('leads')" class="bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-slate-800">
-                        <i class="fa-solid fa-file-csv mr-1"></i>Export CSV
-                    </button>
-                    <button onclick="openModal('modal-cust-apply')" class="bg-emerald-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-emerald-700">
-                        <i class="fa-solid fa-plus mr-1"></i>New Lead
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase">
-                        <tr>
-                            <th class="p-3">Date</th>
-                            <th class="p-3">Customer</th>
-                            <th class="p-3">Phone</th>
-                            <th class="p-3">Product</th>
-                            <th class="p-3">City</th>
-                            <th class="p-3">Bank</th>
-                            <th class="p-3">Assigned DSA</th>
-                            <th class="p-3">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-leads-body" class="divide-y divide-slate-100"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Payouts Section -->
-        <section id="sec-payouts" class="app-section hidden space-y-4">
-            <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-                <h3 class="font-bold text-slate-800">Payout Records</h3>
-                <div class="flex gap-2">
-                    <button onclick="exportToCSV('payouts')" class="bg-slate-700 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-slate-800">
-                        <i class="fa-solid fa-file-csv mr-1"></i>Export CSV
-                    </button>
-                    <button onclick="openModal('modal-add-payout')" class="bg-indigo-600 text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-indigo-700">
-                        <i class="fa-solid fa-plus mr-1"></i>Add Payout
-                    </button>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase">
-                        <tr>
-                            <th class="p-3">Date</th>
-                            <th class="p-3">DSA</th>
-                            <th class="p-3">Customer</th>
-                            <th class="p-3">Bank</th>
-                            <th class="p-3">Disbursed</th>
-                            <th class="p-3">Payout</th>
-                            <th class="p-3">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="table-payouts-body" class="divide-y divide-slate-100"></tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- DSA Panel Section -->
-        <section id="sec-dsa" class="app-section hidden space-y-6">
-            <div>
-                <h3 class="font-bold text-slate-800 mb-3">Pending DSA Applications</h3>
-                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase">
-                            <tr>
-                                <th class="p-3">Name</th>
-                                <th class="p-3">Phone</th>
-                                <th class="p-3">City</th>
-                                <th class="p-3">KYC Status</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-dsa-approvals" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div>
-                <h3 class="font-bold text-slate-800 mb-3">Active System Users</h3>
-                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                    <table class="w-full text-left text-xs">
-                        <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase">
-                            <tr>
-                                <th class="p-3">User ID</th>
-                                <th class="p-3">Password</th>
-                                <th class="p-3">Name</th>
-                                <th class="p-3">Role</th>
-                                <th class="p-3">Phone</th>
-                                <th class="p-3">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-active-users" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
-        </section>
-
-        <!-- Chat Section -->
-        <section id="sec-chat" class="app-section hidden space-y-4">
-            <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col h-[500px]">
-                <h3 class="font-bold text-slate-800 border-b pb-2 mb-3">Team & DSA Communications</h3>
-                <div id="chat-box-feed" class="flex-1 overflow-y-auto space-y-2 pr-2"></div>
-                <form onsubmit="handleSendChat(event)" class="flex gap-2 mt-3 pt-2 border-t border-slate-100">
-                    <input type="text" id="chat-msg-input" placeholder="Type a message..." class="flex-1 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500" required>
-                    <button type="submit" class="bg-indigo-600 text-white font-bold text-xs px-4 py-2 rounded-xl hover:bg-indigo-700">Send</button>
-                </form>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Modal: Add Marketing Offer -->
-    <div id="modal-add-offer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden justify-center items-center z-50">
-        <div class="bg-white p-6 rounded-2xl w-96 shadow-2xl space-y-4">
-            <h3 class="font-bold text-slate-800 text-base">Add Marketing Offer</h3>
-            <form onsubmit="handleAddOffer(event)" class="space-y-3 text-xs">
+      <!-- View Containers -->
+      <main class="p-8 flex-1">
+        
+        <!-- DASHBOARD / ANALYTICS VIEW -->
+        <section id="view-analytics" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between">
                 <div>
-                    <label class="block font-bold mb-1">Title</label>
-                    <input type="text" id="offer-title" class="w-full border border-slate-300 rounded-lg p-2" required>
+                  <p class="text-sm text-slate-500 font-medium">Total Leads</p>
+                  <h3 id="stat-total-leads" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
                 </div>
+                <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                  <i class="fa-solid fa-users text-xl"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between">
                 <div>
-                    <label class="block font-bold mb-1">Description</label>
-                    <textarea id="offer-desc" class="w-full border border-slate-300 rounded-lg p-2" rows="3" required></textarea>
+                  <p class="text-sm text-slate-500 font-medium">Total Disbursed</p>
+                  <h3 id="stat-total-disbursed" class="text-2xl font-bold text-slate-800 mt-1">₹0</h3>
                 </div>
+                <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
+                  <i class="fa-solid fa-indian-rupee-sign text-xl"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between">
                 <div>
-                    <label class="block font-bold mb-1">Validity</label>
-                    <input type="text" id="offer-validity" placeholder="e.g. Valid till 31st Dec" class="w-full border border-slate-300 rounded-lg p-2" required>
+                  <p class="text-sm text-slate-500 font-medium">Pending Payouts</p>
+                  <h3 id="stat-pending-payouts" class="text-2xl font-bold text-slate-800 mt-1">₹0</h3>
                 </div>
-                <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('modal-add-offer')" class="px-3 py-1.5 rounded-lg border border-slate-300">Cancel</button>
-                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-bold">Publish</button>
+                <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
+                  <i class="fa-solid fa-clock-rotate-left text-xl"></i>
                 </div>
+              </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-slate-500 font-medium">Active Marketing Offers</p>
+                  <h3 id="stat-active-offers" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
+                  <i class="fa-solid fa-tags text-xl"></i>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- LEADS MANAGEMENT VIEW -->
+        <section id="view-leads" class="hidden space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+              <h2 class="text-lg font-bold text-slate-800">All Submitted Leads</h2>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-100">
+                  <tr>
+                    <th class="p-4">Customer Name</th>
+                    <th class="p-4">Phone</th>
+                    <th class="p-4">Product Type</th>
+                    <th class="p-4">Amount</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4">DSA Partner</th>
+                  </tr>
+                </thead>
+                <tbody id="leads-table-body" class="divide-y divide-slate-100">
+                  <!-- Leads dynamic render -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- PAYOUTS & WALLET VIEW -->
+        <section id="view-payouts" class="hidden space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+              <h2 class="text-lg font-bold text-slate-800">Payout Records</h2>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-100">
+                  <tr>
+                    <th class="p-4">Payout ID</th>
+                    <th class="p-4">DSA Name</th>
+                    <th class="p-4">Commission Amount</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4">Date</th>
+                  </tr>
+                </thead>
+                <tbody id="payouts-table-body" class="divide-y divide-slate-100">
+                  <!-- Payouts dynamic render -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- USER MANAGEMENT VIEW -->
+        <section id="view-users" class="hidden space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+              <h2 class="text-lg font-bold text-slate-800">System Users (Admins & DSAs)</h2>
+              <button onclick="openModal('modal-add-user')" class="bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">
+                + Add New User
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-100">
+                  <tr>
+                    <th class="p-4">Name</th>
+                    <th class="p-4">Email</th>
+                    <th class="p-4">Role</th>
+                  </tr>
+                </thead>
+                <tbody id="users-table-body" class="divide-y divide-slate-100">
+                  <!-- Users dynamic render -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- MARKETING OFFERS VIEW -->
+        <section id="view-marketing" class="hidden space-y-6">
+          <div class="flex justify-between items-center">
+            <h2 class="text-lg font-bold text-slate-800">Active Marketing Offers</h2>
+            <button onclick="openModal('modal-add-offer')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold">
+              + New Offer
+            </button>
+          </div>
+          <div id="offers-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Dynamic Marketing Offers Cards -->
+          </div>
+        </section>
+
+        <!-- CHAT & SUPPORT VIEW -->
+        <section id="view-chat" class="hidden h-[calc(100vh-160px)]">
+          <div class="bg-white rounded-2xl border border-slate-100 shadow-sm h-full flex flex-col overflow-hidden">
+            <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+              <h3 class="font-bold text-slate-800">Support Chatroom (Firestore Live)</h3>
+              <span class="text-xs text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full font-medium">Real-time</span>
+            </div>
+            
+            <!-- Chat Body -->
+            <div id="chat-messages-container" class="flex-1 p-6 overflow-y-auto space-y-4">
+              <!-- Dynamic Messages Render -->
+            </div>
+
+            <!-- Chat Footer Input -->
+            <form id="chat-form" onsubmit="handleSendChat(event)" class="p-4 border-t border-slate-100 flex space-x-3 bg-white">
+              <input id="chat-msg-input" type="text" placeholder="Type your message here..." class="flex-1 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2">
+                <span>Send</span>
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+              </button>
             </form>
-        </div>
+          </div>
+        </section>
+
+      </main>
     </div>
+  </div>
 
-    <!-- Application JavaScript Code -->
-    <script>
-        // Storage State Manager
-        let appData = {
-            currentUser: { name: "Admin", userid: "admin_01", role: "admin" },
-            leads: [],
-            payouts: [],
-            marketingOffers: [],
-            dsaApprovals: [],
-            users: [],
-            messages: [],
-            cibilRequests: [],
-            portalLogs: []
-        };
+  <!-- MODALS -->
 
-        function saveDataToStorage() {
-            localStorage.setItem("fin_dsa_app_data", JSON.stringify(appData));
+  <!-- Modal: Add Lead -->
+  <div id="modal-add-lead" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border border-slate-100">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-lg text-slate-800">Submit New Lead</h3>
+        <button onclick="closeModal('modal-add-lead')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="handleAddLead(event)" class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Customer Name</label>
+          <input id="lead-name" type="text" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Phone Number</label>
+          <input id="lead-phone" type="tel" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Product Type</label>
+          <select id="lead-product" class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+            <option>Personal Loan</option>
+            <option>Home Loan</option>
+            <option>Business Loan</option>
+            <option>Credit Card</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Amount Required (₹)</label>
+          <input id="lead-amount" type="number" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition">Save to Firebase</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add Offer -->
+  <div id="modal-add-offer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border border-slate-100">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-lg text-slate-800">Add New Offer</h3>
+        <button onclick="closeModal('modal-add-offer')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="handleAddOffer(event)" class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Offer Title</label>
+          <input id="offer-title" type="text" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Description</label>
+          <textarea id="offer-desc" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" rows="3"></textarea>
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Validity Date</label>
+          <input id="offer-validity" type="text" placeholder="e.g. 31st Oct 2026" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition">Publish Offer</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add User -->
+  <div id="modal-add-user" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border border-slate-100">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-bold text-lg text-slate-800">Add System User</h3>
+        <button onclick="closeModal('modal-add-user')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form onsubmit="handleAddUser(event)" class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Name</label>
+          <input id="user-input-name" type="text" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Email</label>
+          <input id="user-input-email" type="email" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Role</label>
+          <select id="user-input-role" class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+            <option value="dsa">DSA Partner</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition">Create User</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
+
+  <!-- JAVASCRIPT & FIREBASE SCRIPT -->
+  <script>
+    // -------------------------------------------------------------
+    // 1. FIREBASE CONFIGURATION
+    // -------------------------------------------------------------
+    const firebaseConfig = {
+      apiKey: "AIzaSyAg6g5EsjBjKleRsjwsM7GRW_cYUJgzfv0",
+      authDomain: "finworld-e30c1.firebaseapp.com",
+      projectId: "finworld-e30c1",
+      storageBucket: "finworld-e30c1.firebasestorage.app",
+      messagingSenderId: "121488796262",
+      appId: "1:121488796262:web:25087c9f7fd955d0359ba7"
+        measurementId: "G-33VJPYKZ5G"
+    };
+
+    // Initialize Firebase & Firestore
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Application Global State
+    let appData = {
+      currentUser: { name: "Ananya Sharma", role: "admin" },
+      leads: [],
+      payouts: [],
+      users: [],
+      marketingOffers: [],
+      messages: []
+    };
+
+    // -------------------------------------------------------------
+    // 2. FIRESTORE REAL-TIME LISTENERS & DATA LOADERS
+    // -------------------------------------------------------------
+    function initFirebaseListeners() {
+      // Real-time Chat Sync
+      db.collection("messages").orderBy("id", "asc")
+        .onSnapshot((snapshot) => {
+          appData.messages = snapshot.docs.map(doc => doc.data());
+          renderChatter();
+        }, error => console.error("Chat sync error:", error));
+
+      // Fetch Leads
+      db.collection("leads").onSnapshot((snapshot) => {
+        appData.leads = snapshot.docs.map(doc => doc.data());
+        renderLeadsTable();
+        renderAnalytics();
+      });
+
+      // Fetch Payouts
+      db.collection("payouts").onSnapshot((snapshot) => {
+        appData.payouts = snapshot.docs.map(doc => doc.data());
+        renderPayoutsTable();
+        renderAnalytics();
+      });
+
+      // Fetch Users
+      db.collection("users").onSnapshot((snapshot) => {
+        appData.users = snapshot.docs.map(doc => doc.data());
+        renderUsersTable();
+      });
+
+      // Fetch Marketing Offers
+      db.collection("marketingOffers").onSnapshot((snapshot) => {
+        appData.marketingOffers = snapshot.docs.map(doc => doc.data());
+        renderMarketingOffers();
+        renderAnalytics();
+      });
+    }
+
+    // -------------------------------------------------------------
+    // 3. TAB NAVIGATION SYSTEM
+    // -------------------------------------------------------------
+    function switchTab(tabName) {
+      const tabs = ['analytics', 'leads', 'payouts', 'users', 'marketing', 'chat'];
+      tabs.forEach(tab => {
+        document.getElementById(`view-${tab}`).classList.add('hidden');
+        const navEl = document.getElementById(`nav-${tab}`);
+        if(navEl) {
+          navEl.classList.remove('bg-indigo-600', 'text-slate-100');
+          navEl.classList.add('text-slate-400', 'hover:bg-slate-800');
         }
+      });
 
-        function loadDataFromStorage() {
-            const data = localStorage.getItem("fin_dsa_app_data");
-            if (data) {
-                appData = JSON.parse(data);
-            } else {
-                // Initial Default Data
-                appData.users = [{ userid: "admin_01", pass: "admin123", name: "System Admin", role: "admin", phone: "9876543210", status: "Active" }];
-                saveDataToStorage();
-            }
-        }
+      document.getElementById(`view-${tabName}`).classList.remove('hidden');
+      const activeNav = document.getElementById(`nav-${tabName}`);
+      if(activeNav) {
+        activeNav.classList.add('bg-indigo-600', 'text-slate-100');
+        activeNav.classList.remove('text-slate-400', 'hover:bg-slate-800');
+      }
 
-        // Security Utility: XSS Protection
-        function sanitize(str) {
-            if (!str) return "";
-            return String(str).replace(/[&<>"']/g, function(m) {
-                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-            });
-        }
+      // Update Top Header Title
+      const titles = {
+        analytics: "Dashboard Overview",
+        leads: "Leads Management",
+        payouts: "Payouts & Wallet Transactions",
+        users: "User Permissions & Roles",
+        marketing: "Marketing & Promotional Offers",
+        chat: "Real-time Support Desk"
+      };
+      document.getElementById('page-title').innerText = titles[tabName] || "Dashboard";
+    }
 
-        // Toggle Password Masking in Table
-        function togglePassVisibility(id) {
-            const el = document.getElementById(id);
-            if (!el) return;
-            if (el.dataset.masked === "true") {
-                el.innerText = el.dataset.realpass;
-                el.dataset.masked = "false";
-            } else {
-                el.innerText = "••••••••";
-                el.dataset.masked = "true";
-            }
-        }
+    // -------------------------------------------------------------
+    // 4. UI RENDER FUNCTIONS
+    // -------------------------------------------------------------
+    function renderAnalytics() {
+      document.getElementById('stat-total-leads').innerText = appData.leads.length;
+      
+      const totalDisbursed = appData.leads
+        .filter(l => l.status === 'Disbursed')
+        .reduce((sum, l) => sum + Number(l.amount || 0), 0);
+      document.getElementById('stat-total-disbursed').innerText = `₹${totalDisbursed.toLocaleString('en-IN')}`;
 
-        // Export Tables Data to CSV
-        function exportToCSV(type) {
-            let csvContent = "data:text/csv;charset=utf-8,";
-            let rows = [];
+      const pendingPay = appData.payouts
+        .filter(p => p.status === 'Pending')
+        .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+      document.getElementById('stat-pending-payouts').innerText = `₹${pendingPay.toLocaleString('en-IN')}`;
 
-            if (type === 'leads') {
-                rows.push(["Date", "Customer Name", "Phone", "Product", "City", "Bank", "DSA", "Status"]);
-                const leads = getFilteredLeads();
-                leads.forEach(l => {
-                    rows.push([l.date, l.name, l.phone, l.product, l.city, l.bank, l.assignedDsa || "Auto", l.status]);
-                });
-            } else if (type === 'payouts') {
-                rows.push(["Date", "DSA", "Customer", "Bank", "Disbursed Amount", "Payout Earned", "Status"]);
-                const payouts = getFilteredPayouts();
-                payouts.forEach(p => {
-                    rows.push([p.date, p.dsa, p.customer, p.bank, p.disbursed, p.payout, p.status]);
-                });
-            }
+      document.getElementById('stat-active-offers').innerText = appData.marketingOffers.length;
+    }
 
-            rows.forEach(rowArray => {
-                let row = rowArray.map(item => `"${item}"`).join(",");
-                csvContent += row + "\r\n";
-            });
+    function renderLeadsTable() {
+      const tbody = document.getElementById('leads-table-body');
+      tbody.innerHTML = appData.leads.map(lead => `
+        <tr class="hover:bg-slate-50/50 transition">
+          <td class="p-4 font-semibold text-slate-800">${lead.name}</td>
+          <td class="p-4">${lead.phone}</td>
+          <td class="p-4">${lead.product}</td>
+          <td class="p-4 font-semibold">₹${Number(lead.amount).toLocaleString('en-IN')}</td>
+          <td class="p-4">
+            <span class="px-2.5 py-1 text-xs rounded-full font-medium ${
+              lead.status === 'Disbursed' ? 'bg-emerald-50 text-emerald-600' :
+              lead.status === 'Under Review' ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-600'
+            }">${lead.status}</span>
+          </td>
+          <td class="p-4">${lead.dsa}</td>
+        </tr>
+      `).join('');
+    }
 
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `${type}_report_${Date.now()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            showToast(`${type.toUpperCase()} data exported as CSV!`, "success");
-        }
+    function renderPayoutsTable() {
+      const tbody = document.getElementById('payouts-table-body');
+      tbody.innerHTML = appData.payouts.map(p => `
+        <tr class="hover:bg-slate-50/50 transition">
+          <td class="p-4 font-mono text-xs text-slate-500">${p.id}</td>
+          <td class="p-4 font-medium text-slate-800">${p.dsaName}</td>
+          <td class="p-4 font-semibold text-slate-800">₹${Number(p.amount).toLocaleString('en-IN')}</td>
+          <td class="p-4">
+            <span class="px-2.5 py-1 text-xs rounded-full font-medium ${p.status === 'Paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}">${p.status}</span>
+          </td>
+          <td class="p-4 text-xs text-slate-400">${p.date}</td>
+        </tr>
+      `).join('');
+    }
 
-        // Form Submit Handlers
-        function handleAddOffer(e) {
-            e.preventDefault();
-            const newOffer = {
-                id: Date.now(),
-                title: document.getElementById("offer-title").value,
-                desc: document.getElementById("offer-desc").value,
-                validity: document.getElementById("offer-validity").value
-            };
-            appData.marketingOffers.unshift(newOffer);
-            saveDataToStorage();
-            closeModal("modal-add-offer");
-            e.target.reset();
-            renderMarketingOffers();
-            showToast("Marketing offer published successfully!", "success");
-        }
+    function renderUsersTable() {
+      const tbody = document.getElementById('users-table-body');
+      tbody.innerHTML = appData.users.map(u => `
+        <tr class="hover:bg-slate-50/50 transition">
+          <td class="p-4 font-semibold text-slate-800">${u.name}</td>
+          <td class="p-4">${u.email}</td>
+          <td class="p-4"><span class="uppercase text-xs tracking-wider px-2 py-0.5 rounded font-bold ${u.role==='admin'?'bg-indigo-50 text-indigo-600':'bg-slate-100 text-slate-600'}">${u.role}</span></td>
+        </tr>
+      `).join('');
+    }
 
-        function handleDSAApply(e) {
-            e.preventDefault();
-            const phone = document.getElementById("dsa-apply-phone").value;
+    function renderMarketingOffers() {
+      const grid = document.getElementById('offers-grid');
+      grid.innerHTML = appData.marketingOffers.map(offer => `
+        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative flex flex-col justify-between">
+          <div>
+            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-4">
+              <i class="fa-solid fa-gift"></i>
+            </div>
+            <h3 class="font-bold text-slate-800 text-base">${offer.title}</h3>
+            <p class="text-sm text-slate-500 mt-2">${offer.desc}</p>
+          </div>
+          <div class="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center">
+            <span class="text-xs text-slate-400">Valid Till: ${offer.validity}</span>
+            <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">Active</span>
+          </div>
+        </div>
+      `).join('');
+    }
 
-            // Duplicate Check
-            const duplicate = appData.users.some(u => u.phone === phone) || appData.dsaApprovals.some(a => a.phone === phone);
-            if (duplicate) {
-                showToast("A DSA with this phone number already exists!", "error");
-                return;
-            }
+    function renderChatter() {
+      const container = document.getElementById('chat-messages-container');
+      container.innerHTML = appData.messages.map(msg => `
+        <div class="flex flex-col space-y-1">
+          <div class="flex items-center space-x-2">
+            <span class="text-xs font-bold text-slate-700">${msg.sender}</span>
+            <span class="text-[10px] text-slate-400">${msg.time}</span>
+          </div>
+          <div class="bg-slate-100 text-slate-800 p-3 rounded-2xl rounded-tl-none text-sm max-w-md w-fit">
+            ${msg.text}
+          </div>
+        </div>
+      `).join('');
+      container.scrollTop = container.scrollHeight;
+    }
 
-            const newApp = {
-                id: Date.now(),
-                name: document.getElementById("dsa-apply-name").value,
-                phone: phone,
-                city: document.getElementById("dsa-apply-city").value,
-                kyc: "Verified (Auto)",
-                status: "Pending"
-            };
+    // -------------------------------------------------------------
+    // 5. FIREBASE ACTIONS (WRITING TO FIRESTORE)
+    // -------------------------------------------------------------
+    function handleAddLead(e) {
+      e.preventDefault();
+      const leadData = {
+        name: document.getElementById('lead-name').value,
+        phone: document.getElementById('lead-phone').value,
+        product: document.getElementById('lead-product').value,
+        amount: Number(document.getElementById('lead-amount').value),
+        status: "Under Review",
+        dsa: appData.currentUser.name,
+        createdAt: new Date().toISOString()
+      };
 
-            appData.dsaApprovals.unshift(newApp);
-            saveDataToStorage();
-            closeModal("modal-dsa-apply");
-            e.target.reset();
-            renderDSAPanel();
-            showToast("DSA Application submitted successfully!", "success");
-        }
+      db.collection("leads").add(leadData).then(() => {
+        closeModal('modal-add-lead');
+        e.target.reset();
+        showToast("Lead saved to Firestore!", "success");
+      }).catch(err => showToast("Error saving lead", "error"));
+    }
 
-        function approveDSA(id) {
-            const dsaApp = appData.dsaApprovals.find(d => d.id === id);
-            if (!dsaApp) return;
+    function handleAddOffer(e) {
+      e.preventDefault();
+      const offerData = {
+        title: document.getElementById('offer-title').value,
+        desc: document.getElementById('offer-desc').value,
+        validity: document.getElementById('offer-validity').value
+      };
 
-            dsaApp.status = "Approved";
-            const generatedUserId = "dsa_" + dsaApp.name.toLowerCase().replace(/\s+/g, '_');
-            const generatedPass = "pass@" + Math.floor(1000 + Math.random() * 9000);
+      db.collection("marketingOffers").add(offerData).then(() => {
+        closeModal('modal-add-offer');
+        e.target.reset();
+        showToast("Marketing offer published!", "success");
+      });
+    }
 
-            appData.users.push({
-                userid: generatedUserId,
-                pass: generatedPass,
-                name: dsaApp.name,
-                role: "dsa",
-                phone: dsaApp.phone,
-                status: "Active"
-            });
+    function handleAddUser(e) {
+      e.preventDefault();
+      const userData = {
+        name: document.getElementById('user-input-name').value,
+        email: document.getElementById('user-input-email').value,
+        role: document.getElementById('user-input-role').value
+      };
 
-            saveDataToStorage();
-            renderAllData();
-            alert(`DSA Approved!\nCredentials Generated:\nUser ID: ${generatedUserId}\nPassword: ${generatedPass}`);
-            showToast(`DSA ${dsaApp.name} approved!`, "success");
-        }
+      db.collection("users").add(userData).then(() => {
+        closeModal('modal-add-user');
+        e.target.reset();
+        showToast("User created successfully!", "success");
+      });
+    }
 
-        function handleSendChat(e) {
-            e.preventDefault();
-            const input = document.getElementById("chat-msg-input");
-            const txt = input.value.trim();
-            if (!txt) return;
+    function handleSendChat(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-msg-input');
+      const text = input.value.trim();
+      if(!text) return;
 
-            appData.messages.push({
-                id: Date.now(),
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                sender: appData.currentUser ? appData.currentUser.name + ` (${appData.currentUser.role.toUpperCase()})` : "User",
-                text: txt
-            });
+      const msgData = {
+        id: Date.now(),
+        sender: appData.currentUser.name,
+        text: text,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
 
-            saveDataToStorage();
-            input.value = "";
-            renderChatter();
-            showToast("Message Sent!", "success");
-        }
+      db.collection("messages").add(msgData).then(() => {
+        input.value = "";
+      });
+    }
 
-        // Render Functions
-        function renderAnalytics() {
-            const leads = getFilteredLeads();
-            const payouts = getFilteredPayouts();
+    // Modal Helpers
+    function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+    function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-            const totalLeadsCount = leads.length;
-            const approvedLeads = leads.filter(l => l.status === "Approved");
-            const totalDisbursed = approvedLeads.reduce((sum, l) => sum + Number(l.amount || 0), 0);
-            const totalPayoutSum = payouts.reduce((sum, p) => sum + Number(p.payout || 0), 0);
-            const conversionRate = totalLeadsCount > 0 ? Math.round((approvedLeads.length / totalLeadsCount) * 100) : 0;
+    // Toast Notifications
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `px-4 py-3 rounded-xl text-white text-sm shadow-lg flex items-center space-x-2 transition-all transform duration-300 ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
+      toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
 
-            document.getElementById("kpi-leads").innerText = totalLeadsCount;
-            document.getElementById("kpi-disbursed").innerText = `₹${totalDisbursed.toLocaleString('en-IN')}`;
-            document.getElementById("kpi-payouts").innerText = `₹${totalPayoutSum.toLocaleString('en-IN')}`;
-            document.getElementById("kpi-conversion").innerText = `${conversionRate}%`;
-
-            const dashOffer = document.getElementById("dashboard-marketing-banner");
-            if (dashOffer && appData.marketingOffers.length > 0) {
-                const latest = appData.marketingOffers[0];
-                document.getElementById("dash-offer-title").innerText = sanitize(latest.title);
-                document.getElementById("dash-offer-desc").innerText = `${sanitize(latest.desc)} (${sanitize(latest.validity)})`;
-                dashOffer.classList.remove("hidden");
-            }
-        }
-
-        function renderMarketingOffers() {
-            const grid = document.getElementById("marketing-offers-grid");
-            if (!grid) return;
-
-            if (appData.marketingOffers.length === 0) {
-                grid.innerHTML = `<div class="col-span-3 text-center p-6 text-slate-400 bg-white rounded-2xl border">No marketing offers published yet.</div>`;
-                return;
-            }
-
-            grid.innerHTML = appData.marketingOffers.map((o) => `
-                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-3 relative">
-                    <div class="flex justify-between items-start">
-                        <h4 class="font-bold text-slate-800 text-base">${sanitize(o.title)}</h4>
-                        <span class="bg-pink-100 text-pink-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">${sanitize(o.validity)}</span>
-                    </div>
-                    <p class="text-xs text-slate-600 leading-relaxed">${sanitize(o.desc)}</p>
-                </div>
-            `).join("");
-        }
-
-        function renderLeadsTable() {
-            const tbody = document.getElementById("table-leads-body");
-            if (!tbody) return;
-            const leads = getFilteredLeads();
-
-            if (leads.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center p-4 text-slate-400">No lead records found</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = leads.map(l => `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-mono text-slate-500">${sanitize(l.date)}</td>
-                    <td class="p-3 font-bold text-slate-800">${sanitize(l.name)}</td>
-                    <td class="p-3 font-mono">${sanitize(l.phone)}</td>
-                    <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded">${sanitize(l.product)}</span></td>
-                    <td class="p-3">${sanitize(l.city)}</td>
-                    <td class="p-3 font-semibold text-slate-700">${sanitize(l.bank)}</td>
-                    <td class="p-3 font-mono text-sky-600">${sanitize(l.assignedDsa || "Auto")}</td>
-                    <td class="p-3">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold ${
-                            l.status === 'Approved' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                        }">${sanitize(l.status)}</span>
-                    </td>
-                </tr>
-            `).join("");
-        }
-
-        function renderPayoutsTable() {
-            const tbody = document.getElementById("table-payouts-body");
-            if (!tbody) return;
-            const payouts = getFilteredPayouts();
-
-            if (payouts.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-slate-400">No payout records found</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = payouts.map(p => `
-                <tr class="hover:bg-slate-50">
-                    <td class="p-3 font-mono text-slate-500">${sanitize(p.date)}</td>
-                    <td class="p-3 font-bold text-sky-600">${sanitize(p.dsa)}</td>
-                    <td class="p-3">${sanitize(p.customer)}</td>
-                    <td class="p-3">${sanitize(p.bank)}</td>
-                    <td class="p-3 font-bold">₹${Number(p.disbursed).toLocaleString('en-IN')}</td>
-                    <td class="p-3 font-bold text-emerald-600">₹${Number(p.payout).toLocaleString('en-IN')}</td>
-                    <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">${sanitize(p.status)}</span></td>
-                </tr>
-            `).join("");
-        }
-
-        function renderDSAPanel() {
-            const tbodyApp = document.getElementById("table-dsa-approvals");
-            if (tbodyApp) {
-                if (appData.dsaApprovals.length === 0) {
-                    tbodyApp.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-400">No pending DSA applications</td></tr>`;
-                } else {
-                    tbodyApp.innerHTML = appData.dsaApprovals.map(d => `
-                        <tr class="hover:bg-slate-50">
-                            <td class="p-3 font-bold text-slate-800">${sanitize(d.name)}</td>
-                            <td class="p-3 font-mono">${sanitize(d.phone)}</td>
-                            <td class="p-3">${sanitize(d.city)}</td>
-                            <td class="p-3">${sanitize(d.kyc)}</td>
-                            <td class="p-3"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold">${sanitize(d.status)}</span></td>
-                            <td class="p-3">
-                                ${d.status === 'Pending' ? `<button onclick="approveDSA(${d.id})" class="bg-emerald-600 text-white font-bold px-2.5 py-1 rounded text-xs hover:bg-emerald-700 shadow-sm">Approve DSA</button>` : '<span class="text-slate-400 text-xs">Approved</span>'}
-                            </td>
-                        </tr>
-                    `).join("");
-                }
-            }
-
-            const tbodyUsers = document.getElementById("table-active-users");
-            if (tbodyUsers) {
-                tbodyUsers.innerHTML = appData.users.map((u, idx) => `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-3 font-mono font-bold text-sky-600">${sanitize(u.userid)}</td>
-                        <td class="p-3 font-mono font-bold text-rose-600 bg-rose-50 px-2 rounded flex justify-between items-center">
-                            <span id="pass-val-${idx}" data-masked="true" data-realpass="${sanitize(u.pass)}">••••••••</span>
-                            <button onclick="togglePassVisibility('pass-val-${idx}')" class="text-slate-400 hover:text-slate-600 ml-2">
-                                <i class="fa-solid fa-eye text-xs"></i>
-                            </button>
-                        </td>
-                        <td class="p-3 font-bold text-slate-800">${sanitize(u.name)}</td>
-                        <td class="p-3 uppercase font-bold text-[10px]">${sanitize(u.role)}</td>
-                        <td class="p-3 font-mono">${sanitize(u.phone)}</td>
-                        <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">${sanitize(u.status)}</span></td>
-                    </tr>
-                `).join("");
-            }
-        }
-
-        function renderChatter() {
-            const feed = document.getElementById("chat-box-feed");
-            if (!feed) return;
-
-            if (appData.messages.length === 0) {
-                feed.innerHTML = `<div class="text-center p-6 text-slate-400">No chat history. Start a conversation!</div>`;
-                return;
-            }
-
-            feed.innerHTML = appData.messages.map(m => `
-                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
-                    <div class="flex justify-between items-center">
-                        <span class="font-bold text-indigo-600">${sanitize(m.sender)}</span>
-                        <span class="text-[10px] text-slate-400">${sanitize(m.time)}</span>
-                    </div>
-                    <p class="text-slate-700 font-medium">${sanitize(m.text)}</p>
-                </div>
-            `).join("");
-
-            // Auto Scroll to Bottom
-            feed.scrollTop = feed.scrollHeight;
-        }
-
-        function renderAllData() {
-            renderAnalytics();
-            renderLeadsTable();
-            renderPayoutsTable();
-            renderMarketingOffers();
-            renderDSAPanel();
-            renderChatter();
-        }
-
-        // Search & Helpers
-        function getFilteredLeads() {
-            let leads = appData.leads || [];
-            const isDsa = appData.currentUser && appData.currentUser.role === 'dsa';
-
-            if (isDsa) {
-                leads = leads.filter(l => l.assignedDsa === appData.currentUser.name || l.assignedDsa === appData.currentUser.userid);
-            }
-
-            const query = (document.getElementById("search-leads-input")?.value || "").toLowerCase();
-            if (!query) return leads;
-
-            return leads.filter(l => 
-                (l.name && l.name.toLowerCase().includes(query)) ||
-                (l.phone && l.phone.toLowerCase().includes(query)) ||
-                (l.city && l.city.toLowerCase().includes(query)) ||
-                (l.bank && l.bank.toLowerCase().includes(query))
-            );
-        }
-
-        function getFilteredPayouts() {
-            let payouts = appData.payouts || [];
-            const isDsa = appData.currentUser && appData.currentUser.role === 'dsa';
-
-            if (isDsa) {
-                payouts = payouts.filter(p => p.dsa === appData.currentUser.name || p.dsa === appData.currentUser.userid);
-            }
-
-            return payouts;
-        }
-
-        function showSection(sectionId) {
-            document.querySelectorAll('.app-section').forEach(sec => sec.classList.add('hidden'));
-            const target = document.getElementById(`sec-${sectionId}`);
-            if (target) target.classList.remove('hidden');
-        }
-
-        function openModal(id) {
-            const m = document.getElementById(id);
-            if (m) {
-                m.classList.remove('hidden');
-                m.classList.add('flex');
-            }
-        }
-
-        function closeModal(id) {
-            const m = document.getElementById(id);
-            if (m) {
-                m.classList.add('hidden');
-                m.classList.remove('flex');
-            }
-        }
-
-        function showToast(msg, type = "info") {
-            let toastBox = document.getElementById("toast-container");
-            if (!toastBox) {
-                toastBox = document.createElement("div");
-                toastBox.id = "toast-container";
-                toastBox.className = "fixed bottom-5 right-5 z-50 flex flex-col gap-2";
-                document.body.appendChild(toastBox);
-            }
-            const el = document.createElement("div");
-            el.className = `px-4 py-3 rounded-xl text-white text-xs font-bold shadow-2xl transition-all duration-300 ${
-                type === "success" ? "bg-emerald-600" : type === "error" ? "bg-rose-600" : "bg-indigo-600"
-            }`;
-            el.innerText = msg;
-            toastBox.appendChild(el);
-            setTimeout(() => el.remove(), 3500);
-        }
-
-        // Initialize Application
-        window.onload = function() {
-            loadDataFromStorage();
-            renderAllData();
-            showSection('dashboard');
-        };
-    </script>
+    // App Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      initFirebaseListeners();
+    });
+  </script>
 </body>
 </html>
