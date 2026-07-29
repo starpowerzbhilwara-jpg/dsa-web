@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FinWorld Portal - Operations, Smart Upload & SM Mapping</title>
+    <title>FinWorld Portal - Operations & CIBIL Management</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- SheetJS (XLSX) for Excel Processing and Export -->
+    <!-- SheetJS (XLSX) for Excel Processing & Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         .app-section { transition: all 0.2s ease-in-out; }
@@ -59,19 +59,22 @@
                         <i class="fa-solid fa-chart-pie text-sky-400 w-5"></i> Dashboard
                     </button>
                     <button id="nav-leads" onclick="showSection('leads')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 font-medium text-sm transition text-left">
-                        <i class="fa-solid fa-list-check text-emerald-400 w-5"></i> Calling Data & Leads
-                    </button>
-                    <button id="nav-sm-finder" onclick="showSection('sm-finder')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 font-medium text-sm transition text-left">
-                        <i class="fa-solid fa-user-tie text-amber-400 w-5"></i> Location SM Finder
+                        <i class="fa-solid fa-list-check text-emerald-400 w-5"></i> Leads Operations
                     </button>
                     <button id="nav-cibil" onclick="showSection('cibil')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 font-medium text-sm transition text-left">
-                        <i class="fa-solid fa-shield-halved text-rose-400 w-5"></i> CIBIL Checks
+                        <i class="fa-solid fa-shield-halved text-amber-400 w-5"></i> CIBIL & Paid Services
                     </button>
                     <button id="nav-payouts" onclick="showSection('payouts')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 font-medium text-sm transition text-left">
                         <i class="fa-solid fa-file-invoice-dollar text-emerald-400 w-5"></i> Disbursal Ledger
                     </button>
                     <button id="nav-banks" onclick="showSection('banks')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 font-medium text-sm transition text-left">
-                        <i class="fa-solid fa-building-columns text-blue-400 w-5"></i> Bank Credentials
+                        <i class="fa-solid fa-building-columns text-blue-400 w-5"></i> Bank Logins & Master
+                    </button>
+                    <button id="nav-sm-finder" onclick="showSection('sm-finder')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 font-medium text-sm transition text-left">
+                        <i class="fa-solid fa-user-tie text-amber-400 w-5"></i> Location SM Directory
+                    </button>
+                    <button id="nav-inbox" onclick="showSection('inbox')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 font-medium text-sm transition text-left">
+                        <i class="fa-solid fa-comments text-indigo-400 w-5"></i> Inbox & Chatter
                     </button>
                     <button id="nav-dsa" onclick="showSection('dsa')" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 text-slate-300 font-medium text-sm transition text-left">
                         <i class="fa-solid fa-id-card text-purple-400 w-5"></i> Team & Assistants
@@ -102,17 +105,17 @@
                     </div>
                     <div class="flex gap-2">
                         <button onclick="exportToExcel('leads')" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition">
-                            <i class="fa-solid fa-file-excel mr-1.5"></i> Export Leads Excel Report
+                            <i class="fa-solid fa-file-excel mr-1.5"></i> Export Leads Excel
                         </button>
                         <button onclick="exportToExcel('disbursals')" class="bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition">
-                            <i class="fa-solid fa-file-excel mr-1.5"></i> Export Disbursal Report
+                            <i class="fa-solid fa-file-excel mr-1.5"></i> Export Disbursals Excel
                         </button>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Total Calling Leads</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase">Total Leads</p>
                         <h3 id="kpi-leads" class="text-3xl font-black text-slate-800 mt-1">0</h3>
                     </div>
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -120,18 +123,17 @@
                         <h3 id="kpi-disbursed" class="text-3xl font-black text-emerald-600 mt-1">₹0</h3>
                     </div>
                     <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <p class="text-xs font-bold text-slate-400 uppercase">CIBIL Checks Run</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase">CIBIL Checks Generated</p>
                         <h3 id="kpi-cibil-count" class="text-3xl font-black text-amber-600 mt-1">0</h3>
                     </div>
                 </div>
 
-                <!-- SMART QUICK ACTIONS -->
                 <div class="flex flex-wrap gap-3">
-                    <button onclick="openModal('modal-upload-data')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition">
-                        <i class="fa-solid fa-file-import mr-1.5"></i> Smart Data Import (Excel/CSV/Text)
+                    <button onclick="openModal('modal-smart-upload')" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition">
+                        <i class="fa-solid fa-file-import mr-1.5"></i> Smart Upload (Excel/CSV/Text)
                     </button>
                     <button onclick="openModal('modal-add-lead')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition">
-                        <i class="fa-solid fa-plus mr-1.5"></i> Add Manual Lead
+                        <i class="fa-solid fa-plus mr-1.5"></i> Add New Lead
                     </button>
                     <button onclick="openModal('modal-add-disbursal')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition">
                         <i class="fa-solid fa-check-circle mr-1.5"></i> Add Disbursed Entry
@@ -139,19 +141,19 @@
                 </div>
             </section>
 
-            <!-- SECTION: LEADS & CALLING DATA -->
+            <!-- SECTION: LEADS -->
             <section id="sec-leads" class="app-section space-y-6 hidden">
                 <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800">Calling Data & Leads Master</h2>
-                        <p class="text-xs text-slate-500">Filtered & Sequence-Protected Calling Database</p>
+                        <h2 class="text-xl font-bold text-slate-800">Leads Operations</h2>
+                        <p class="text-xs text-slate-500">Manage all customer loan requests</p>
                     </div>
                     <div class="flex gap-2">
-                        <button onclick="openModal('modal-upload-data')" class="bg-purple-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-purple-700 transition">
-                            <i class="fa-solid fa-upload mr-1"></i> Smart Upload File
+                        <button onclick="openModal('modal-smart-upload')" class="bg-purple-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-purple-700 transition">
+                            <i class="fa-solid fa-upload mr-1"></i> Smart Upload
                         </button>
-                        <button onclick="exportToExcel('leads')" class="bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-emerald-800 transition">
-                            <i class="fa-solid fa-download mr-1"></i> Download Excel
+                        <button onclick="openModal('modal-add-lead')" class="bg-emerald-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-emerald-700 transition">
+                            + Create Lead
                         </button>
                     </div>
                 </div>
@@ -163,11 +165,12 @@
                                 <tr>
                                     <th class="p-3">Date</th>
                                     <th class="p-3">Customer Name</th>
-                                    <th class="p-3">Mobile No</th>
-                                    <th class="p-3">City</th>
+                                    <th class="p-3">Phone</th>
                                     <th class="p-3">Product</th>
+                                    <th class="p-3">City</th>
                                     <th class="p-3">Target Bank</th>
-                                    <th class="p-3">Assigned Agent/DSA</th>
+                                    <th class="p-3">Assigned DSA</th>
+                                    <th class="p-3">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="table-leads-body" class="divide-y divide-slate-100 font-medium"></tbody>
@@ -176,68 +179,15 @@
                 </div>
             </section>
 
-            <!-- SECTION: LOCATION & BANK SM FINDER (DYNAMIC LOOKUP) -->
-            <section id="sec-sm-finder" class="app-section space-y-6 hidden">
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h2 class="text-xl font-bold text-slate-800">Bank Sales Manager (SM) Lookup</h2>
-                    <p class="text-xs text-slate-500">Find bank SM details based on Location & Bank for smooth file login</p>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Select Location / City</label>
-                            <select id="sm-search-city" onchange="filterSMDetails()" class="w-full p-2.5 border rounded-xl text-xs font-semibold">
-                                <option value="">-- Choose City --</option>
-                                <option value="Jaipur">Jaipur</option>
-                                <option value="Delhi">Delhi</option>
-                                <option value="Mumbai">Mumbai</option>
-                                <option value="Ahmedabad">Ahmedabad</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-600 mb-1 uppercase">Select Bank</label>
-                            <select id="sm-search-bank" onchange="filterSMDetails()" class="w-full p-2.5 border rounded-xl text-xs font-semibold">
-                                <option value="">-- Choose Bank --</option>
-                                <option value="HDFC Bank">HDFC Bank</option>
-                                <option value="ICICI Bank">ICICI Bank</option>
-                                <option value="Axis Bank">Axis Bank</option>
-                                <option value="Bajaj Finserv">Bajaj Finserv</option>
-                            </select>
-                        </div>
-                        <div class="flex items-end">
-                            <button onclick="openModal('modal-add-sm')" class="w-full bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-2.5 rounded-xl shadow">
-                                + Add New Bank SM Contact
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
-                                <tr>
-                                    <th class="p-3">Bank Name</th>
-                                    <th class="p-3">Location / City</th>
-                                    <th class="p-3">SM Name</th>
-                                    <th class="p-3">SM Contact Number</th>
-                                    <th class="p-3">SM Email ID</th>
-                                </tr>
-                            </thead>
-                            <tbody id="table-sm-details" class="divide-y divide-slate-100 font-medium"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION: CIBIL SERVICES -->
+            <!-- SECTION: CIBIL & PAID SERVICES -->
             <section id="sec-cibil" class="app-section space-y-6 hidden">
                 <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div>
                         <h2 class="text-xl font-bold text-slate-800">CIBIL Verification Center</h2>
-                        <p class="text-xs text-slate-500">Generate CIBIL Reports instantly</p>
+                        <p class="text-xs text-slate-500">Generate instant CIBIL scores for DSA & Customers</p>
                     </div>
                     <button onclick="openModal('modal-cibil-check')" class="bg-amber-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-amber-700 transition">
-                        + Run CIBIL Check
+                        + Run Paid CIBIL Check
                     </button>
                 </div>
 
@@ -250,7 +200,7 @@
                                     <th class="p-3">Customer Name</th>
                                     <th class="p-3">PAN Card</th>
                                     <th class="p-3">CIBIL Score</th>
-                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Payment Status</th>
                                 </tr>
                             </thead>
                             <tbody id="table-cibil-logs" class="divide-y divide-slate-100 font-medium"></tbody>
@@ -259,21 +209,16 @@
                 </div>
             </section>
 
-            <!-- SECTION: DISBURSED LEDGER -->
+            <!-- SECTION: DISBURSED & RE-VERIFICATION LEDGER -->
             <section id="sec-payouts" class="app-section space-y-6 hidden">
                 <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800">Disbursed Loans Ledger</h2>
-                        <p class="text-xs text-slate-500">All successful disbursed loan records</p>
+                        <h2 class="text-xl font-bold text-slate-800">Disbursed Loans & SM Re-verification Ledger</h2>
+                        <p class="text-xs text-slate-500">Track loan disbursals and Bank Sales Manager details for cross-verification</p>
                     </div>
-                    <div class="flex gap-2">
-                        <button onclick="openModal('modal-add-disbursal')" class="bg-blue-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
-                            + Add Disbursed Loan
-                        </button>
-                        <button onclick="exportToExcel('disbursals')" class="bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-emerald-800 transition">
-                            <i class="fa-solid fa-download mr-1"></i> Download Excel Report
-                        </button>
-                    </div>
+                    <button onclick="openModal('modal-add-disbursal')" class="bg-blue-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-blue-700 transition">
+                        + Add Disbursed Loan
+                    </button>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -288,7 +233,8 @@
                                     <th class="p-3">Product</th>
                                     <th class="p-3 text-emerald-700">Disbursed Amount (₹)</th>
                                     <th class="p-3 text-blue-700">SM Name</th>
-                                    <th class="p-3 text-blue-700">SM Mobile</th>
+                                    <th class="p-3 text-blue-700">SM Mobile (For Re-verify)</th>
+                                    <th class="p-3">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="table-disbursal-body" class="divide-y divide-slate-100 font-medium"></tbody>
@@ -297,10 +243,10 @@
                 </div>
             </section>
 
-            <!-- SECTION: BANK CREDENTIALS -->
+            <!-- SECTION: BANK LOGINS -->
             <section id="sec-banks" class="app-section space-y-6 hidden">
                 <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                    <h2 class="text-xl font-bold text-slate-800">Bank Direct Portal Logins</h2>
+                    <h2 class="text-xl font-bold text-slate-800">Bank Partner Logins</h2>
                 </div>
 
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -310,7 +256,7 @@
                                 <tr>
                                     <th class="p-3">Bank Name</th>
                                     <th class="p-3">Category</th>
-                                    <th class="p-3">Portal User ID</th>
+                                    <th class="p-3">User ID</th>
                                     <th class="p-3">Password</th>
                                 </tr>
                             </thead>
@@ -320,12 +266,63 @@
                 </div>
             </section>
 
+            <!-- SECTION: LOCATION SM DIRECTORY -->
+            <section id="sec-sm-finder" class="app-section space-y-6 hidden">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">Location & Bank SM Directory</h2>
+                            <p class="text-xs text-slate-500">Find On-Field Bank Sales Managers for Smooth File Login</p>
+                        </div>
+                        <button onclick="openModal('modal-add-sm')" class="bg-amber-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-amber-700">
+                            + Add New Bank SM
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <input type="text" id="sm-search-city" onkeyup="filterSMList()" placeholder="Filter by City (e.g. Jaipur)" class="p-2.5 border rounded-xl text-xs">
+                        <input type="text" id="sm-search-bank" onkeyup="filterSMList()" placeholder="Filter by Bank (e.g. HDFC)" class="p-2.5 border rounded-xl text-xs">
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 text-slate-500 uppercase font-bold border-b border-slate-200">
+                                <tr>
+                                    <th class="p-3">Bank Name</th>
+                                    <th class="p-3">City / Location</th>
+                                    <th class="p-3">Sales Manager (SM)</th>
+                                    <th class="p-3">Contact Mobile</th>
+                                    <th class="p-3">Official Email</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-sm-list" class="divide-y divide-slate-100 font-medium"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: INBOX -->
+            <section id="sec-inbox" class="app-section space-y-6 hidden">
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                    <h2 class="text-xl font-bold text-slate-800">Internal Team Chat</h2>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 flex flex-col h-96">
+                    <div id="chat-box-feed" class="flex-1 overflow-y-auto space-y-2 mb-3"></div>
+                    <form onsubmit="handleSendChat(event)" class="flex gap-2">
+                        <input type="text" id="chat-msg-input" placeholder="Type message..." required class="flex-1 p-2.5 border rounded-xl text-xs">
+                        <button type="submit" class="bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold">Send</button>
+                    </form>
+                </div>
+            </section>
+
             <!-- SECTION: TEAM & ASSISTANTS -->
             <section id="sec-dsa" class="app-section space-y-6 hidden">
                 <div class="flex justify-between items-center bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800">Team Accounts & DSAs</h2>
-                        <p class="text-xs text-slate-500">Manage DSA partners & staff logins</p>
+                        <h2 class="text-xl font-bold text-slate-800">DSA & Assistant Users</h2>
+                        <p class="text-xs text-slate-500">Manage user accounts and credentials</p>
                     </div>
                     <button onclick="openModal('modal-add-assistant')" class="bg-purple-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-purple-700 transition">
                         + Add User / Assistant
@@ -355,100 +352,103 @@
 
     <!-- MODALS -->
 
-    <!-- Modal: SMART FILE UPLOAD (Excel / CSV / Text Auto Filter) -->
-    <div id="modal-upload-data" class="fixed inset-0 bg-slate-900/70 hidden items-center justify-center p-4 z-50">
+    <!-- Modal: Smart Upload File (Auto Filter Required Fields Only) -->
+    <div id="modal-smart-upload" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h3 class="font-bold text-lg text-slate-800">Smart Data Upload (Excel / CSV / Text)</h3>
-            <p class="text-xs text-slate-500">System automatically extracts required columns (Name, Mobile, City, Product, Bank) and ignores extra data to keep sequence intact.</p>
-            
-            <form onsubmit="handleSmartFileUpload(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Select Data File (.xlsx, .xls, .csv, .txt)</label>
-                    <input type="file" id="upload-file-input" accept=".xlsx, .xls, .csv, .txt" required class="w-full px-3 py-2 border rounded-xl text-xs">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Assign to Agent / DSA</label>
-                    <input type="text" id="upload-assign-dsa" placeholder="e.g. dsa_rajesh" required class="w-full px-3 py-2 border rounded-xl text-xs">
-                </div>
+            <p class="text-xs text-slate-500">Upload any calling file format. System will auto-extract ONLY Name, Phone, City, Product, and Bank to protect sequence.</p>
+            <form onsubmit="handleSmartUpload(event)" class="space-y-3">
+                <input type="file" id="upload-file" accept=".xlsx, .xls, .csv, .txt" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                <input type="text" id="upload-dsa-id" placeholder="Assign to DSA User ID" required class="w-full px-3 py-2 border rounded-xl text-xs">
                 <div class="flex justify-end gap-2 pt-2">
-                    <button type="button" onclick="closeModal('modal-upload-data')" class="px-4 py-2 text-xs font-bold text-slate-500">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white rounded-xl">Extract & Save Data</button>
+                    <button type="button" onclick="closeModal('modal-smart-upload')" class="px-4 py-2 text-xs font-bold text-slate-500">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white rounded-xl">Extract & Save</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Add Bank SM Contact Details -->
+    <!-- Modal: Add SM Detail -->
     <div id="modal-add-sm" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
-            <h3 class="font-bold text-lg text-slate-800">Add Location Bank SM Contact</h3>
+            <h3 class="font-bold text-lg text-slate-800">Add Location SM Contact</h3>
             <form onsubmit="handleAddSM(event)" class="space-y-3">
-                <input type="text" id="sm-bank-name" placeholder="Bank Name (e.g. HDFC Bank)" required class="w-full px-3 py-2 border rounded-xl text-xs">
-                <input type="text" id="sm-city-name" placeholder="Location / City (e.g. Jaipur)" required class="w-full px-3 py-2 border rounded-xl text-xs">
-                <input type="text" id="sm-person-name" placeholder="Sales Manager (SM) Name" required class="w-full px-3 py-2 border rounded-xl text-xs">
-                <input type="tel" id="sm-person-phone" placeholder="SM Contact Mobile Number" required class="w-full px-3 py-2 border rounded-xl text-xs">
-                <input type="email" id="sm-person-email" placeholder="SM Official Email ID" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                <input type="text" id="sm-bank" placeholder="Bank Name (e.g. HDFC Bank)" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                <input type="text" id="sm-city" placeholder="City / Location (e.g. Jaipur)" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                <input type="text" id="sm-name" placeholder="SM Name" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                <input type="tel" id="sm-phone" placeholder="SM Contact Number" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                <input type="email" id="sm-email" placeholder="SM Email ID" required class="w-full px-3 py-2 border rounded-xl text-xs">
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeModal('modal-add-sm')" class="px-4 py-2 text-xs font-bold text-slate-500">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-xl">Save SM Contact</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-xl">Save SM Entry</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Add Disbursed Loan -->
+    <!-- Modal: Add Disbursed Loan Entry -->
     <div id="modal-add-disbursal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h3 class="font-bold text-lg text-slate-800">Add Disbursed Loan Record</h3>
             <form onsubmit="handleAddDisbursal(event)" class="space-y-3">
-                <input type="date" id="disb-date" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Disbursal Date</label>
+                    <input type="date" id="disb-date" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                </div>
                 <input type="text" id="disb-dsa" placeholder="DSA / Agent User ID" required class="w-full px-3 py-2 border rounded-xl text-xs">
                 <input type="text" id="disb-cust-name" placeholder="Customer Full Name" required class="w-full px-3 py-2 border rounded-xl text-xs">
-                <input type="text" id="disb-bank" placeholder="Bank Name" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                <input type="text" id="disb-bank" placeholder="Bank Name (e.g. HDFC, ICICI)" required class="w-full px-3 py-2 border rounded-xl text-xs">
                 <select id="disb-product" class="w-full px-3 py-2 border rounded-xl text-xs font-medium">
                     <option value="Personal Loan">Personal Loan</option>
                     <option value="Business Loan">Business Loan</option>
                     <option value="Home Loan">Home Loan</option>
                     <option value="LAP">Loan Against Property (LAP)</option>
+                    <option value="Auto Loan">Auto / Vehicle Loan</option>
                 </select>
                 <input type="number" id="disb-amount" placeholder="Disbursed Amount (₹)" required class="w-full px-3 py-2 border rounded-xl text-xs font-bold text-emerald-700">
-                <input type="text" id="disb-sm-name" placeholder="SM Name" required class="w-full px-3 py-2 border rounded-xl text-xs">
-                <input type="tel" id="disb-sm-phone" placeholder="SM Mobile Number" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                <div class="border-t pt-2 space-y-2">
+                    <p class="text-[10px] font-bold text-blue-600 uppercase">Bank Sales Manager (SM) Details (For Re-verification)</p>
+                    <input type="text" id="disb-sm-name" placeholder="SM Name" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                    <input type="tel" id="disb-sm-phone" placeholder="SM Mobile Number" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                </div>
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeModal('modal-add-disbursal')" class="px-4 py-2 text-xs font-bold text-slate-500">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-blue-600 text-white rounded-xl">Save Disbursal</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white rounded-xl">Save Record</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Run CIBIL Check -->
+    <!-- Modal: Run Paid CIBIL Check -->
     <div id="modal-cibil-check" class="fixed inset-0 bg-slate-900/70 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
-            <h3 class="font-bold text-lg text-slate-800">CIBIL Report Generator</h3>
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg text-slate-800">Instant CIBIL Report Generator</h3>
+            </div>
             <form onsubmit="handleRunCibilCheck(event)" class="space-y-3">
                 <input type="text" id="cibil-cust-name" placeholder="Customer Full Name" required class="w-full px-3 py-2 border rounded-xl text-xs">
-                <input type="text" id="cibil-cust-pan" placeholder="PAN Card Number" required uppercase class="w-full px-3 py-2 border rounded-xl text-xs uppercase font-mono">
+                <input type="text" id="cibil-cust-pan" placeholder="PAN Card Number" required uppercase class="w-full px-3 py-2 border rounded-xl text-xs font-mono uppercase">
                 <input type="tel" id="cibil-cust-phone" placeholder="Mobile Number" required class="w-full px-3 py-2 border rounded-xl text-xs">
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeModal('modal-cibil-check')" class="px-4 py-2 text-xs font-bold text-slate-500">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-amber-600 text-white rounded-xl">Generate Score</button>
+                    <button type="submit" class="px-4 py-2 text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-xl">Generate CIBIL Score</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal: Add Assistant -->
+    <!-- Modal: Add Assistant / User -->
     <div id="modal-add-assistant" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
             <h3 class="font-bold text-lg text-slate-800">Create New Assistant / DSA ID</h3>
             <form onsubmit="handleAddAssistant(event)" class="space-y-3">
-                <input type="text" id="ast-userid" placeholder="User ID / Username" required class="w-full px-3 py-2 border rounded-xl text-xs">
+                <input type="text" id="ast-userid" placeholder="User ID / Login Username" required class="w-full px-3 py-2 border rounded-xl text-xs">
                 <input type="password" id="ast-pass" placeholder="Password" required class="w-full px-3 py-2 border rounded-xl text-xs">
                 <input type="text" id="ast-name" placeholder="Full Name" required class="w-full px-3 py-2 border rounded-xl text-xs">
                 <select id="ast-role" class="w-full px-3 py-2 border rounded-xl text-xs font-bold">
-                    <option value="assistant">Assistant</option>
+                    <option value="assistant">CIBIL Assistant</option>
                     <option value="dsa">DSA Partner</option>
+                    <option value="calling">Calling Agent</option>
                 </select>
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeModal('modal-add-assistant')" class="px-4 py-2 text-xs font-bold text-slate-500">Cancel</button>
@@ -479,40 +479,43 @@
 
     <!-- JAVASCRIPT CORE -->
     <script>
+        // ORIGINAL V4 DATA STRUCTURE preserved to keep old saved data intact
         const defaultAppData = {
             users: [
                 { userid: "admin", pass: "admin123", name: "System Admin", role: "admin", status: "Active" },
-                { userid: "dsa_rajesh", pass: "dsa123", name: "Rajesh Sharma", role: "dsa", status: "Active" }
+                { userid: "dsa_rajesh", pass: "dsa123", name: "Rajesh Sharma", role: "dsa", status: "Active" },
+                { userid: "assistant_01", pass: "ast123", name: "Pooja (CIBIL Assist)", role: "assistant", status: "Active" }
             ],
-            leads: [
-                { date: "2026-03-25", name: "Ramesh Verma", phone: "9876543210", city: "Jaipur", product: "Personal Loan", bank: "HDFC Bank", assignedDsa: "dsa_rajesh" }
-            ],
-            smContacts: [
-                { bank: "HDFC Bank", city: "Jaipur", name: "Amit Sharma (SM)", phone: "9829012345", email: "amit.sharma@hdfcbank.com" },
-                { bank: "ICICI Bank", city: "Jaipur", name: "Vikram Rathore (SM)", phone: "9829098765", email: "vikram.r@icicibank.com" },
-                { bank: "Axis Bank", city: "Delhi", name: "Suresh Gupta (SM)", phone: "9811012345", email: "suresh.g@axisbank.com" }
-            ],
+            leads: [],
             cibilLogs: [],
             disbursals: [
-                { date: "2026-03-25", dsa: "dsa_rajesh", custName: "Amit Kumar", bank: "HDFC Bank", product: "Personal Loan", amount: 500000, smName: "Amit Sharma", smPhone: "9829012345" }
+                { date: "2026-03-25", dsa: "dsa_rajesh", custName: "Amit Kumar", bank: "HDFC Bank", product: "Personal Loan", amount: 500000, smName: "Rohan Verma", smPhone: "9876543210", status: "Disbursed" }
             ],
             banks: [
                 { name: "HDFC Bank", category: "Private", userid: "hdfc_partner", pass: "HdfcPass@123" },
                 { name: "ICICI Bank", category: "Private", userid: "icici_partner", pass: "IciciPass@123" }
+            ],
+            smDirectory: [
+                { bank: "HDFC Bank", city: "Jaipur", name: "Rohan Verma", phone: "9876543210", email: "rohan.v@hdfc.com" }
             ]
         };
 
+        // KEEPING EXACT SAME LOCALSTORAGE KEY SO YOUR PREVIOUS DATA REMAINS SAFE
         function loadDataFromStorage() {
-            const stored = localStorage.getItem("FINWORLD_SMART_APP_V5");
+            const stored = localStorage.getItem("FINWORLD_LEADS_APP_V4");
             if (stored) {
-                try { return JSON.parse(stored); } catch (e) {}
+                try { 
+                    const parsed = JSON.parse(stored);
+                    if(!parsed.smDirectory) parsed.smDirectory = defaultAppData.smDirectory;
+                    return parsed;
+                } catch (e) {}
             }
-            localStorage.setItem("FINWORLD_SMART_APP_V5", JSON.stringify(defaultAppData));
+            localStorage.setItem("FINWORLD_LEADS_APP_V4", JSON.stringify(defaultAppData));
             return JSON.parse(JSON.stringify(defaultAppData));
         }
 
         function saveDataToStorage() {
-            localStorage.setItem("FINWORLD_SMART_APP_V5", JSON.stringify(appData));
+            localStorage.setItem("FINWORLD_LEADS_APP_V4", JSON.stringify(appData));
         }
 
         const appData = loadDataFromStorage();
@@ -546,11 +549,11 @@
             document.getElementById("sec-login").classList.remove("hidden");
         }
 
-        // SMART UPLOAD FILE (Excel/CSV/Text Parser - Extracts ONLY needed columns)
-        function handleSmartFileUpload(e) {
+        // SMART UPLOAD (Excel / CSV / Text) - Auto filters extra columns
+        function handleSmartUpload(e) {
             e.preventDefault();
-            const fileInput = document.getElementById("upload-file-input");
-            const targetDSA = document.getElementById("upload-assign-dsa").value.trim();
+            const fileInput = document.getElementById("upload-file");
+            const targetDSA = document.getElementById("upload-dsa-id").value.trim();
             const file = fileInput.files[0];
 
             if (!file) return;
@@ -562,44 +565,46 @@
 
                 if (file.name.endsWith(".csv") || file.name.endsWith(".txt")) {
                     const lines = data.split("\n");
-                    rows = lines.map(line => line.split(/,|\t/));
+                    rows = lines.map(l => l.split(/,|\t/));
                 } else {
                     const workbook = XLSX.read(data, { type: 'binary' });
-                    const sheetName = workbook.SheetNames[0];
-                    rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 });
+                    const sheet = workbook.SheetNames[0];
+                    rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheet], { header: 1 });
                 }
 
-                let addedCount = 0;
-                // Parse rows & strictly pull required fields (Ignore unnecessary columns)
+                let count = 0;
                 rows.forEach((row, idx) => {
-                    if (idx === 0 || !row || row.length < 2) return; // Skip headers/empty lines
+                    if (idx === 0 || !row || row.length < 2) return;
 
+                    // STRICTLY EXTRACT FIRST 5 COLUMNS ONLY (NAME, PHONE, CITY, PRODUCT, BANK)
                     const name = row[0] ? row[0].toString().trim() : "Unknown";
-                    const phone = row[1] ? row[1].toString().trim() : "N/A";
-                    const city = row[2] ? row[2].toString().trim() : "General";
+                    const phone = row[1] ? row[1].toString().trim() : "";
+                    const city = row[2] ? row[2].toString().trim() : "Local";
                     const product = row[3] ? row[3].toString().trim() : "Personal Loan";
                     const bank = row[4] ? row[4].toString().trim() : "HDFC Bank";
 
-                    if (phone !== "N/A" && phone !== "") {
+                    if (phone !== "") {
                         appData.leads.unshift({
+                            id: Date.now() + Math.random(),
                             date: new Date().toISOString().split('T')[0],
                             name: name,
                             phone: phone,
-                            city: city,
                             product: product,
+                            city: city,
                             bank: bank,
-                            assignedDsa: targetDSA
+                            assignedDsa: targetDSA,
+                            status: "Pending"
                         });
-                        addedCount++;
+                        count++;
                     }
                 });
 
                 saveDataToStorage();
-                closeModal("modal-upload-data");
+                closeModal("modal-smart-upload");
                 fileInput.value = "";
                 renderLeadsTable();
                 renderAnalytics();
-                alert(`Success! Imported ${addedCount} leads for ${targetDSA}. Extra data was automatically skipped to maintain clean sequence.`);
+                alert(`Data Processed! ${count} leads imported for DSA (${targetDSA}). Unwanted extra columns were automatically skipped.`);
             };
 
             if (file.name.endsWith(".csv") || file.name.endsWith(".txt")) {
@@ -609,59 +614,61 @@
             }
         }
 
-        // EXPORT TO EXCEL REPORT
+        // EXPORT TO EXCEL FEATURE
         function exportToExcel(type) {
-            let exportData = [];
-            let fileName = "Report.xlsx";
+            let dataToExport = [];
+            let filename = "Report.xlsx";
 
             if (type === 'leads') {
-                exportData = appData.leads;
-                fileName = "Calling_Leads_Report.xlsx";
-            } else if (type === 'disbursals') {
-                exportData = appData.disbursals;
-                fileName = "Disbursal_Report.xlsx";
+                dataToExport = appData.leads;
+                filename = "Leads_Operations_Report.xlsx";
+            } else {
+                dataToExport = appData.disbursals;
+                filename = "Disbursal_Ledger_Report.xlsx";
             }
 
-            const worksheet = XLSX.utils.json_to_sheet(exportData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
-            XLSX.writeFile(workbook, fileName);
+            const ws = XLSX.utils.json_to_sheet(dataToExport);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            XLSX.writeFile(wb, filename);
         }
 
-        // ADD BANK SM DETAILS
+        // ADD LOCATION SM CONTACT
         function handleAddSM(e) {
             e.preventDefault();
             const record = {
-                bank: document.getElementById("sm-bank-name").value.trim(),
-                city: document.getElementById("sm-city-name").value.trim(),
-                name: document.getElementById("sm-person-name").value.trim(),
-                phone: document.getElementById("sm-person-phone").value.trim(),
-                email: document.getElementById("sm-person-email").value.trim()
+                bank: document.getElementById("sm-bank").value.trim(),
+                city: document.getElementById("sm-city").value.trim(),
+                name: document.getElementById("sm-name").value.trim(),
+                phone: document.getElementById("sm-phone").value.trim(),
+                email: document.getElementById("sm-email").value.trim()
             };
 
-            appData.smContacts.unshift(record);
+            if (!appData.smDirectory) appData.smDirectory = [];
+            appData.smDirectory.unshift(record);
             saveDataToStorage();
             closeModal("modal-add-sm");
             e.target.reset();
-            renderSMTable(appData.smContacts);
-            alert("Bank SM Details Saved Successfully!");
+            renderSMList();
+            alert("SM Contact Details Added!");
         }
 
-        function filterSMDetails() {
-            const city = document.getElementById("sm-search-city").value.toLowerCase();
-            const bank = document.getElementById("sm-search-bank").value.toLowerCase();
+        function filterSMList() {
+            const cityFilter = document.getElementById("sm-search-city").value.toLowerCase();
+            const bankFilter = document.getElementById("sm-search-bank").value.toLowerCase();
 
-            const filtered = appData.smContacts.filter(s => {
-                const matchCity = !city || s.city.toLowerCase().includes(city);
-                const matchBank = !bank || s.bank.toLowerCase().includes(bank);
+            const filtered = (appData.smDirectory || []).filter(item => {
+                const matchCity = item.city.toLowerCase().includes(cityFilter);
+                const matchBank = item.bank.toLowerCase().includes(bankFilter);
                 return matchCity && matchBank;
             });
 
-            renderSMTable(filtered);
+            renderSMList(filtered);
         }
 
-        function renderSMTable(list) {
-            const tbody = document.getElementById("table-sm-details");
+        function renderSMList(customList = null) {
+            const tbody = document.getElementById("table-sm-list");
+            const list = customList || appData.smDirectory || [];
             tbody.innerHTML = list.map(s => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-bold text-slate-800">${s.bank}</td>
@@ -673,28 +680,34 @@
             `).join("");
         }
 
-        // STANDARD SUBMISSIONS
+        // LEAD SUBMISSION
         function handleAddLead(e) {
             e.preventDefault();
-            appData.leads.unshift({
+            const newLead = {
+                id: Date.now(),
                 date: document.getElementById("lead-date").value,
                 name: document.getElementById("lead-name").value,
                 phone: document.getElementById("lead-phone").value,
                 product: document.getElementById("lead-product").value,
                 city: document.getElementById("lead-city").value,
                 bank: document.getElementById("lead-bank").value,
-                assignedDsa: appData.currentUser.userid
-            });
+                assignedDsa: appData.currentUser.userid,
+                status: "Pending"
+            };
+
+            appData.leads.unshift(newLead);
             saveDataToStorage();
             closeModal("modal-add-lead");
             e.target.reset();
             renderLeadsTable();
             renderAnalytics();
+            alert("Lead Saved Successfully!");
         }
 
+        // DISBURSAL ENTRY
         function handleAddDisbursal(e) {
             e.preventDefault();
-            appData.disbursals.unshift({
+            const record = {
                 date: document.getElementById("disb-date").value,
                 dsa: document.getElementById("disb-dsa").value.trim(),
                 custName: document.getElementById("disb-cust-name").value,
@@ -702,65 +715,79 @@
                 product: document.getElementById("disb-product").value,
                 amount: Number(document.getElementById("disb-amount").value),
                 smName: document.getElementById("disb-sm-name").value,
-                smPhone: document.getElementById("disb-sm-phone").value
-            });
+                smPhone: document.getElementById("disb-sm-phone").value,
+                status: "Verified & Disbursed"
+            };
+
+            appData.disbursals.unshift(record);
             saveDataToStorage();
             closeModal("modal-add-disbursal");
             e.target.reset();
             renderDisbursalTable();
             renderAnalytics();
+            alert("Disbursal Record Added Successfully!");
         }
 
+        // CIBIL HANDLER
         function handleRunCibilCheck(e) {
             e.preventDefault();
-            const score = Math.floor(Math.random() * (850 - 650 + 1)) + 650;
-            appData.cibilLogs.unshift({
+            const cibilScore = Math.floor(Math.random() * (850 - 650 + 1)) + 650;
+
+            const record = {
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                 name: document.getElementById("cibil-cust-name").value,
                 pan: document.getElementById("cibil-cust-pan").value.toUpperCase(),
-                score: score,
+                phone: document.getElementById("cibil-cust-phone").value,
+                score: cibilScore,
                 status: "Generated"
-            });
+            };
+
+            appData.cibilLogs.unshift(record);
             saveDataToStorage();
             closeModal("modal-cibil-check");
             e.target.reset();
             renderCibilLogs();
             renderAnalytics();
-            alert(`CIBIL Score: ${score}`);
+            alert(`CIBIL Generated!\nCustomer: ${record.name}\nCIBIL Score: ${cibilScore}`);
         }
 
         function handleAddAssistant(e) {
             e.preventDefault();
-            appData.users.push({
+            const newU = {
                 userid: document.getElementById("ast-userid").value.trim(),
                 pass: document.getElementById("ast-pass").value.trim(),
                 name: document.getElementById("ast-name").value,
                 role: document.getElementById("ast-role").value,
                 status: "Active"
-            });
+            };
+            appData.users.push(newU);
             saveDataToStorage();
             closeModal("modal-add-assistant");
             e.target.reset();
             renderActiveUsers();
+            alert("Assistant User Account Created!");
         }
 
-        // RENDERING
+        // RENDERING FUNCTIONS
         function renderLeadsTable() {
-            document.getElementById("table-leads-body").innerHTML = appData.leads.map(l => `
+            const tbody = document.getElementById("table-leads-body");
+            tbody.innerHTML = appData.leads.map(l => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-mono text-slate-500">${l.date}</td>
                     <td class="p-3 font-bold text-slate-800">${l.name}</td>
                     <td class="p-3 font-mono">${l.phone}</td>
+                    <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded">${l.product}</span></td>
                     <td class="p-3">${l.city}</td>
-                    <td class="p-3"><span class="bg-slate-100 px-2 py-0.5 rounded text-slate-700">${l.product}</span></td>
-                    <td class="p-3 font-semibold">${l.bank}</td>
-                    <td class="p-3 font-mono text-sky-600 font-bold">${l.assignedDsa}</td>
+                    <td class="p-3 font-semibold text-slate-700">${l.bank}</td>
+                    <td class="p-3 font-mono text-sky-600">${l.assignedDsa}</td>
+                    <td class="p-3"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px] font-bold">${l.status}</span></td>
                 </tr>
             `).join("");
         }
 
         function renderDisbursalTable() {
-            document.getElementById("table-disbursal-body").innerHTML = appData.disbursals.map(d => `
+            const tbody = document.getElementById("table-disbursal-body");
+            tbody.innerHTML = appData.disbursals.map(d => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-mono text-slate-500">${d.date}</td>
                     <td class="p-3 font-mono font-bold text-sky-600">${d.dsa}</td>
@@ -770,12 +797,14 @@
                     <td class="p-3 font-black text-emerald-600">₹${Number(d.amount).toLocaleString('en-IN')}</td>
                     <td class="p-3 font-bold text-slate-700">${d.smName}</td>
                     <td class="p-3 font-mono text-blue-600 font-bold"><a href="tel:${d.smPhone}"><i class="fa-solid fa-phone mr-1"></i>${d.smPhone}</a></td>
+                    <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[10px] font-bold">${d.status}</span></td>
                 </tr>
             `).join("");
         }
 
         function renderCibilLogs() {
-            document.getElementById("table-cibil-logs").innerHTML = appData.cibilLogs.map(c => `
+            const tbody = document.getElementById("table-cibil-logs");
+            tbody.innerHTML = appData.cibilLogs.map(c => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-mono text-slate-500">${c.time}</td>
                     <td class="p-3 font-bold text-slate-800">${c.name}</td>
@@ -787,7 +816,8 @@
         }
 
         function renderActiveUsers() {
-            document.getElementById("table-active-users").innerHTML = appData.users.map(u => `
+            const tbody = document.getElementById("table-active-users");
+            tbody.innerHTML = appData.users.map(u => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-mono font-bold text-sky-600">${u.userid}</td>
                     <td class="p-3 font-mono font-bold text-rose-600 bg-rose-50 px-2 rounded">${u.pass}</td>
@@ -799,7 +829,8 @@
         }
 
         function renderBankMaster() {
-            document.getElementById("table-bank-master").innerHTML = appData.banks.map(b => `
+            const tbody = document.getElementById("table-bank-master");
+            tbody.innerHTML = appData.banks.map(b => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-bold text-slate-800">${b.name}</td>
                     <td class="p-3">${b.category}</td>
@@ -822,7 +853,7 @@
             renderCibilLogs();
             renderActiveUsers();
             renderBankMaster();
-            renderSMTable(appData.smContacts);
+            renderSMList();
             renderAnalytics();
         }
 
