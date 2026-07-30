@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GrowthHub Pro - Partner CRM Dashboard</title>
+  <title>FinWorld Pro - Partner & DSA CRM Dashboard</title>
   
   <!-- CDNs -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -14,114 +14,206 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
   <style>
-    /* Custom Scrollbar for Chat & Tables */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(12px);
-    }
+    .glass-effect { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
 
-  <!-- Main Container -->
+  <!-- LOGIN MODAL OVERLAY -->
+  <div id="login-modal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-8 w-full max-w-md shadow-2xl border border-slate-100">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-12 h-12 bg-indigo-100 rounded-xl mb-3">
+          <i class="fa-solid fa-chart-line text-indigo-600 text-2xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-slate-900">FinWorld Pro</h2>
+        <p class="text-sm text-slate-500 mt-1">Sign in to access your Partner CRM Portal</p>
+      </div>
+      <form onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Email Address</label>
+          <input id="login-email" type="email" required placeholder="dsa@finworld.com" class="w-full mt-1 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Password</label>
+          <input id="login-password" type="password" required placeholder="••••••••" class="w-full mt-1 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600 uppercase tracking-wider">Select Role</label>
+          <select id="login-role" class="w-full mt-1 border border-slate-200 rounded-xl p-3 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition">
+            <option value="Admin">Admin / Owner</option>
+            <option value="Super Distributor">SM (Super Distributor)</option>
+            <option value="DSA Partner">DSA Partner</option>
+            <option value="Agent">Sub-Agent / Staff</option>
+          </select>
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
+          Sign In
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MANDATORY ONBOARDING FORM MODAL FOR DSA / USER -->
+  <div id="onboarding-modal" class="fixed inset-0 bg-slate-900/95 backdrop-blur-lg z-40 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl p-8 w-full max-w-2xl shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="border-b pb-4 mb-4">
+        <h2 class="text-xl font-bold text-slate-900">Complete Mandatory Profile</h2>
+        <p class="text-xs text-slate-500">Pehle aapka profile details aur verification complete karna compulsory hai lead tracking ke liye.</p>
+      </div>
+      <form onsubmit="saveMandatoryProfile(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="text-xs font-semibold text-slate-600">Full Name / Agency Name</label>
+          <input id="onboard-agency" type="text" required class="w-full mt-1 border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600">PAN Number</label>
+          <input id="onboard-pan" type="text" required uppercase class="w-full mt-1 border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600">Aadhaar / Govt ID Number</label>
+          <input id="onboard-aadhaar" type="text" required class="w-full mt-1 border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600">Bank Account Number (Payouts)</label>
+          <input id="onboard-bankacc" type="text" required class="w-full mt-1 border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600">Bank IFSC Code</label>
+          <input id="onboard-ifsc" type="text" required class="w-full mt-1 border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="text-xs font-semibold text-slate-600">Assigned SM / Distributor</label>
+          <input id="onboard-distributor" type="text" placeholder="e.g. MetroSM Region-1" required class="w-full mt-1 border rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div class="col-span-1 md:col-span-2 pt-2">
+          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition">
+            Save Profile & Activate Dashboard
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
   <div class="flex h-screen overflow-hidden">
 
-    <!-- Sidebar Navigation -->
+    <!-- SIDEBAR -->
     <aside id="sidebar" class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between transition-all duration-300 z-20">
       <div>
-        <!-- Logo / Brand -->
+        <!-- Logo -->
         <div class="h-16 flex items-center justify-between px-6 bg-slate-950">
           <div class="flex items-center space-x-3">
             <i class="fa-solid fa-chart-line text-indigo-500 text-2xl"></i>
-            <span class="font-bold text-lg text-white tracking-wide">GrowthHub<span class="text-indigo-500">Pro</span></span>
+            <span class="font-bold text-lg text-white tracking-wide">FinWorld<span class="text-indigo-500">Pro</span></span>
           </div>
         </div>
 
-        <!-- Navigation Links -->
+        <!-- Navigation -->
         <nav class="mt-6 px-4 space-y-1">
-          <a href="#" onclick="switchTab('analytics')" id="nav-analytics" class="flex items-center px-4 py-3 text-slate-100 bg-indigo-600 rounded-xl transition duration-200">
+          <a href="#" onclick="switchTab('analytics')" id="nav-analytics" class="flex items-center px-4 py-3 text-slate-100 bg-indigo-600 rounded-xl transition">
             <i class="fa-solid fa-house w-6 text-center"></i>
             <span class="ml-3 font-medium">Dashboard</span>
           </a>
-          <a href="#" onclick="switchTab('leads')" id="nav-leads" class="flex items-center px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition duration-200">
+          <a href="#" onclick="switchTab('leads')" id="nav-leads" class="flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-xl transition">
             <i class="fa-solid fa-users w-6 text-center"></i>
-            <span class="ml-3 font-medium">Leads Management</span>
+            <span class="ml-3 font-medium">Apply & Track Status</span>
           </a>
-          <a href="#" onclick="switchTab('payouts')" id="nav-payouts" class="flex items-center px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition duration-200">
+          <a href="#" onclick="switchTab('bankvault')" id="nav-bankvault" class="flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-xl transition">
+            <i class="fa-solid fa-key w-6 text-center"></i>
+            <span class="ml-3 font-medium">Bank Credentials Vault</span>
+          </a>
+          <a href="#" onclick="switchTab('banks')" id="nav-banks" class="flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-xl transition">
+            <i class="fa-solid fa-building-columns w-6 text-center"></i>
+            <span class="ml-3 font-medium">Bank Commission Config</span>
+          </a>
+          <a href="#" onclick="switchTab('payouts')" id="nav-payouts" class="flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-xl transition">
             <i class="fa-solid fa-wallet w-6 text-center"></i>
-            <span class="ml-3 font-medium">Payouts & Wallet</span>
+            <span class="ml-3 font-medium">Payouts Management</span>
           </a>
-          <a href="#" onclick="switchTab('users')" id="nav-users" class="flex items-center px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition duration-200">
-            <i class="fa-solid fa-user-shield w-6 text-center"></i>
-            <span class="ml-3 font-medium">User Management</span>
+          <a href="#" onclick="switchTab('multiagent')" id="nav-multiagent" class="flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-xl transition">
+            <i class="fa-solid fa-sitemap w-6 text-center"></i>
+            <span class="ml-3 font-medium">SM / Multi-DSA Network</span>
           </a>
-          <a href="#" onclick="switchTab('marketing')" id="nav-marketing" class="flex items-center px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition duration-200">
-            <i class="fa-solid fa-bullhorn w-6 text-center"></i>
-            <span class="ml-3 font-medium">Marketing Offers</span>
+          <a href="#" onclick="switchTab('permissions')" id="nav-permissions" class="flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-xl transition">
+            <i class="fa-solid fa-user-gear w-6 text-center"></i>
+            <span class="ml-3 font-medium">Authority & Permissions</span>
           </a>
-          <a href="#" onclick="switchTab('chat')" id="nav-chat" class="flex items-center px-4 py-3 hover:bg-slate-800 text-slate-400 hover:text-slate-200 rounded-xl transition duration-200">
+          <a href="#" onclick="switchTab('chat')" id="nav-chat" class="flex items-center px-4 py-3 text-slate-400 hover:bg-slate-800 hover:text-slate-200 rounded-xl transition">
             <i class="fa-solid fa-comments w-6 text-center"></i>
             <span class="ml-3 font-medium">Chat & Support</span>
           </a>
         </nav>
       </div>
 
-      <!-- Current User Info -->
-      <div class="p-4 border-t border-slate-800">
-        <div class="flex items-center space-x-3 bg-slate-800/50 p-3 rounded-xl">
-          <img id="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" class="w-10 h-10 rounded-full object-cover" alt="User">
-          <div class="overflow-hidden">
-            <h4 id="user-name" class="text-sm font-semibold text-white truncate">Ananya Sharma</h4>
-            <p id="user-role" class="text-xs text-indigo-400 capitalize">Admin</p>
+      <!-- Staff Punch In/Out & User Footer -->
+      <div class="p-4 border-t border-slate-800 space-y-3">
+        <!-- Punch In / Punch Out Widget -->
+        <div class="bg-slate-800/80 p-3 rounded-xl flex items-center justify-between text-xs">
+          <div>
+            <p class="text-slate-400">Attendance Log</p>
+            <p id="punch-status" class="font-bold text-amber-400">Punched Out</p>
           </div>
+          <button id="punch-btn" onclick="toggleAttendance()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-semibold text-[11px] transition">
+            Punch In
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between bg-slate-800/50 p-3 rounded-xl">
+          <div class="flex items-center space-x-3 overflow-hidden">
+            <div class="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold text-xs" id="user-avatar-text">F</div>
+            <div class="overflow-hidden">
+              <h4 id="user-name" class="text-sm font-semibold text-white truncate">FinWorld User</h4>
+              <p id="user-role" class="text-xs text-indigo-400 capitalize">DSA Partner</p>
+            </div>
+          </div>
+          <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-400 transition p-2" title="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
         </div>
       </div>
     </aside>
 
-    <!-- Main Content Area -->
+    <!-- MAIN BODY CONTENT -->
     <div class="flex-1 flex flex-col h-screen overflow-y-auto">
       
-      <!-- Top Header -->
+      <!-- HEADER -->
       <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-10 glass-effect">
         <div class="flex items-center space-x-4">
           <h1 id="page-title" class="text-xl font-bold text-slate-800">Dashboard Overview</h1>
         </div>
 
         <div class="flex items-center space-x-4">
-          <!-- Live Firebase Status Indicator -->
           <div class="flex items-center space-x-2 text-xs bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-full font-medium">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span>Firebase Connected</span>
           </div>
 
-          <!-- Add Lead Button -->
           <button onclick="openModal('modal-add-lead')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2 transition shadow-sm hover:shadow-indigo-200">
             <i class="fa-solid fa-plus text-xs"></i>
-            <span>Add New Lead</span>
+            <span>Apply New Loan / Lead</span>
           </button>
         </div>
       </header>
 
-      <!-- View Containers -->
+      <!-- VIEWS -->
       <main class="p-8 flex-1">
         
-        <!-- DASHBOARD / ANALYTICS VIEW -->
+        <!-- DASHBOARD VIEW -->
         <section id="view-analytics" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            
             <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm text-slate-500 font-medium">Total Leads</p>
+                  <p class="text-sm text-slate-500 font-medium">Total Applied Leads</p>
                   <h3 id="stat-total-leads" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
                 </div>
                 <div class="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
-                  <i class="fa-solid fa-users text-xl"></i>
+                  <i class="fa-solid fa-file-invoice text-xl"></i>
                 </div>
               </div>
             </div>
@@ -129,7 +221,7 @@
             <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm text-slate-500 font-medium">Total Disbursed</p>
+                  <p class="text-sm text-slate-500 font-medium">Total Disbursed Volume</p>
                   <h3 id="stat-total-disbursed" class="text-2xl font-bold text-slate-800 mt-1">₹0</h3>
                 </div>
                 <div class="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
@@ -141,7 +233,7 @@
             <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm text-slate-500 font-medium">Pending Payouts</p>
+                  <p class="text-sm text-slate-500 font-medium">Pending DSA Payouts</p>
                   <h3 id="stat-pending-payouts" class="text-2xl font-bold text-slate-800 mt-1">₹0</h3>
                 </div>
                 <div class="w-12 h-12 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600">
@@ -153,23 +245,22 @@
             <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm text-slate-500 font-medium">Active Marketing Offers</p>
-                  <h3 id="stat-active-offers" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
+                  <p class="text-sm text-slate-500 font-medium">Active DSA / Agents Network</p>
+                  <h3 id="stat-active-dsa" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
                 </div>
-                <div class="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600">
-                  <i class="fa-solid fa-tags text-xl"></i>
+                <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-purple-600">
+                  <i class="fa-solid fa-network-wired text-xl"></i>
                 </div>
               </div>
             </div>
-
           </div>
         </section>
 
-        <!-- LEADS MANAGEMENT VIEW -->
+        <!-- LEADS / APPLICATION LIFECYCLE TRACKER -->
         <section id="view-leads" class="hidden space-y-6">
           <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-              <h2 class="text-lg font-bold text-slate-800">All Submitted Leads</h2>
+              <h2 class="text-lg font-bold text-slate-800">Application Tracking (Apply to Disbursement)</h2>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm text-slate-600">
@@ -177,104 +268,174 @@
                   <tr>
                     <th class="p-4">Customer Name</th>
                     <th class="p-4">Phone</th>
-                    <th class="p-4">Product Type</th>
+                    <th class="p-4">Product / Bank</th>
                     <th class="p-4">Amount</th>
-                    <th class="p-4">Status</th>
-                    <th class="p-4">DSA Partner</th>
+                    <th class="p-4">SM / DSA Agent</th>
+                    <th class="p-4">Live Status</th>
+                    <th class="p-4">Action</th>
                   </tr>
                 </thead>
                 <tbody id="leads-table-body" class="divide-y divide-slate-100">
-                  <!-- Leads dynamic render -->
+                  <!-- Dynamic content -->
                 </tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- PAYOUTS & WALLET VIEW -->
-        <section id="view-payouts" class="hidden space-y-6">
+        <!-- BANK ID & PASSWORD VAULT -->
+        <section id="view-bankvault" class="hidden space-y-6">
           <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-              <h2 class="text-lg font-bold text-slate-800">Payout Records</h2>
+              <div>
+                <h2 class="text-lg font-bold text-slate-800">Bank Portal Credentials Vault</h2>
+                <p class="text-xs text-slate-500">Internal bank portal login credentials management for DSAs.</p>
+              </div>
+              <button onclick="openModal('modal-add-vault')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">
+                + Add Bank Credentials
+              </button>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm text-slate-600">
                 <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-100">
                   <tr>
-                    <th class="p-4">Payout ID</th>
-                    <th class="p-4">DSA Name</th>
-                    <th class="p-4">Commission Amount</th>
+                    <th class="p-4">Bank Portal Name</th>
+                    <th class="p-4">Portal URL / Link</th>
+                    <th class="p-4">User ID / Username</th>
+                    <th class="p-4">Password</th>
+                    <th class="p-4">Access Level</th>
+                  </tr>
+                </thead>
+                <tbody id="vault-table-body" class="divide-y divide-slate-100">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- BANK CONFIGURATION VIEW -->
+        <section id="view-banks" class="hidden space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+              <h2 class="text-lg font-bold text-slate-800">Bank Commission Structure</h2>
+              <button onclick="openModal('modal-add-bank')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">
+                + Add Commission Rate
+              </button>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-100">
+                  <tr>
+                    <th class="p-4">Bank Name</th>
+                    <th class="p-4">Loan Product</th>
+                    <th class="p-4">Commission %</th>
+                    <th class="p-4">Payout Cycle</th>
+                  </tr>
+                </thead>
+                <tbody id="banks-table-body" class="divide-y divide-slate-100">
+                  <!-- Dynamic content -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- PAYOUTS VIEW -->
+        <section id="view-payouts" class="hidden space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+              <h2 class="text-lg font-bold text-slate-800">DSA & Staff Payout Ledger</h2>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-sm text-slate-600">
+                <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-100">
+                  <tr>
+                    <th class="p-4">Txn ID</th>
+                    <th class="p-4">DSA Partner</th>
+                    <th class="p-4">Amount</th>
                     <th class="p-4">Status</th>
                     <th class="p-4">Date</th>
                   </tr>
                 </thead>
                 <tbody id="payouts-table-body" class="divide-y divide-slate-100">
-                  <!-- Payouts dynamic render -->
+                  <!-- Dynamic content -->
                 </tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- USER MANAGEMENT VIEW -->
-        <section id="view-users" class="hidden space-y-6">
+        <!-- MULTI-DSA & SM NETWORK VIEW -->
+        <section id="view-multiagent" class="hidden space-y-6">
           <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-              <h2 class="text-lg font-bold text-slate-800">System Users (Admins & DSAs)</h2>
-              <button onclick="openModal('modal-add-user')" class="bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">
-                + Add New User
+              <h2 class="text-lg font-bold text-slate-800">Super Distributor & Multi-DSA Network</h2>
+              <button onclick="openModal('modal-add-agent')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold">
+                + Create Sub-DSA / Agent
               </button>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full text-left text-sm text-slate-600">
                 <thead class="bg-slate-50 text-slate-700 font-semibold border-b border-slate-100">
                   <tr>
-                    <th class="p-4">Name</th>
-                    <th class="p-4">Email</th>
-                    <th class="p-4">Role</th>
+                    <th class="p-4">Partner Name</th>
+                    <th class="p-4">Role Hierarchy</th>
+                    <th class="p-4">Mapped SM/Distributor</th>
+                    <th class="p-4">PAN / Verification</th>
+                    <th class="p-4">Status</th>
                   </tr>
                 </thead>
-                <tbody id="users-table-body" class="divide-y divide-slate-100">
-                  <!-- Users dynamic render -->
+                <tbody id="multiagent-table-body" class="divide-y divide-slate-100">
+                  <!-- Dynamic content -->
                 </tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- MARKETING OFFERS VIEW -->
-        <section id="view-marketing" class="hidden space-y-6">
-          <div class="flex justify-between items-center">
-            <h2 class="text-lg font-bold text-slate-800">Active Marketing Offers</h2>
-            <button onclick="openModal('modal-add-offer')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold">
-              + New Offer
-            </button>
-          </div>
-          <div id="offers-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <!-- Dynamic Marketing Offers Cards -->
+        <!-- AUTHORITY & PERMISSIONS MATRIX -->
+        <section id="view-permissions" class="hidden space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <h2 class="text-lg font-bold text-slate-800 mb-2">Authority & Module Access Control</h2>
+            <p class="text-xs text-slate-500 mb-6">Set feature access permissions for different system roles.</p>
+            
+            <div class="space-y-4">
+              <div class="p-4 border rounded-xl flex items-center justify-between">
+                <div>
+                  <h4 class="font-bold text-sm">DSA Bank Vault Access</h4>
+                  <p class="text-xs text-slate-500">Allow DSA Partners to view shared bank credentials.</p>
+                </div>
+                <input type="checkbox" checked class="w-5 h-5 accent-indigo-600">
+              </div>
+              <div class="p-4 border rounded-xl flex items-center justify-between">
+                <div>
+                  <h4 class="font-bold text-sm">Direct Status Override</h4>
+                  <p class="text-xs text-slate-500">Allow SM Distributors to mark leads directly as Disbursed.</p>
+                </div>
+                <input type="checkbox" checked class="w-5 h-5 accent-indigo-600">
+              </div>
+              <div class="p-4 border rounded-xl flex items-center justify-between">
+                <div>
+                  <h4 class="font-bold text-sm">Payout Approval Control</h4>
+                  <p class="text-xs text-slate-500">Restricted strictly to FinWorld Super-Admin.</p>
+                </div>
+                <input type="checkbox" checked class="w-5 h-5 accent-indigo-600">
+              </div>
+            </div>
           </div>
         </section>
 
-        <!-- CHAT & SUPPORT VIEW -->
+        <!-- CHAT SECTION -->
         <section id="view-chat" class="hidden h-[calc(100vh-160px)]">
           <div class="bg-white rounded-2xl border border-slate-100 shadow-sm h-full flex flex-col overflow-hidden">
             <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-              <h3 class="font-bold text-slate-800">Support Chatroom (Firestore Live)</h3>
-              <span class="text-xs text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full font-medium">Real-time</span>
+              <h3 class="font-bold text-slate-800">Support Chatroom</h3>
             </div>
-            
-            <!-- Chat Body -->
-            <div id="chat-messages-container" class="flex-1 p-6 overflow-y-auto space-y-4">
-              <!-- Dynamic Messages Render -->
-            </div>
-
-            <!-- Chat Footer Input -->
-            <form id="chat-form" onsubmit="handleSendChat(event)" class="p-4 border-t border-slate-100 flex space-x-3 bg-white">
-              <input id="chat-msg-input" type="text" placeholder="Type your message here..." class="flex-1 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-              <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl text-sm font-semibold flex items-center space-x-2">
-                <span>Send</span>
-                <i class="fa-solid fa-paper-plane text-xs"></i>
-              </button>
+            <div id="chat-messages-container" class="flex-1 p-6 overflow-y-auto space-y-4"></div>
+            <form id="chat-form" onsubmit="handleSendChat(event)" class="p-4 border-t flex space-x-3 bg-white">
+              <input id="chat-msg-input" type="text" placeholder="Type your message..." class="flex-1 border rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <button type="submit" class="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-semibold">Send</button>
             </form>
           </div>
         </section>
@@ -285,25 +446,25 @@
 
   <!-- MODALS -->
 
-  <!-- Modal: Add Lead -->
+  <!-- Modal: Apply Lead -->
   <div id="modal-add-lead" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
     <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border border-slate-100">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="font-bold text-lg text-slate-800">Submit New Lead</h3>
+        <h3 class="font-bold text-lg text-slate-800">Apply New Lead / Loan</h3>
         <button onclick="closeModal('modal-add-lead')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <form onsubmit="handleAddLead(event)" class="space-y-4">
         <div>
           <label class="text-xs font-semibold text-slate-500">Customer Name</label>
-          <input id="lead-name" type="text" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <input id="lead-name" type="text" required class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div>
           <label class="text-xs font-semibold text-slate-500">Phone Number</label>
-          <input id="lead-phone" type="tel" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <input id="lead-phone" type="tel" required class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
         <div>
-          <label class="text-xs font-semibold text-slate-500">Product Type</label>
-          <select id="lead-product" class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="text-xs font-semibold text-slate-500">Product</label>
+          <select id="lead-product" class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
             <option>Personal Loan</option>
             <option>Home Loan</option>
             <option>Business Loan</option>
@@ -311,75 +472,82 @@
           </select>
         </div>
         <div>
-          <label class="text-xs font-semibold text-slate-500">Amount Required (₹)</label>
-          <input id="lead-amount" type="number" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="text-xs font-semibold text-slate-500">Target Bank</label>
+          <input id="lead-bank" type="text" placeholder="e.g. HDFC / ICICI" required class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
         </div>
-        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition">Save to Firebase</button>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Requested Amount (₹)</label>
+          <input id="lead-amount" type="number" required class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition">Submit Lead Application</button>
       </form>
     </div>
   </div>
 
-  <!-- Modal: Add Offer -->
-  <div id="modal-add-offer" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
+  <!-- Modal: Add Bank Vault Creds -->
+  <div id="modal-add-vault" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
     <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border border-slate-100">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="font-bold text-lg text-slate-800">Add New Offer</h3>
-        <button onclick="closeModal('modal-add-offer')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        <h3 class="font-bold text-lg text-slate-800">Add Bank Credentials Vault</h3>
+        <button onclick="closeModal('modal-add-vault')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <form onsubmit="handleAddOffer(event)" class="space-y-4">
+      <form onsubmit="handleAddVault(event)" class="space-y-4">
         <div>
-          <label class="text-xs font-semibold text-slate-500">Offer Title</label>
-          <input id="offer-title" type="text" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="text-xs font-semibold text-slate-500">Bank Portal Name</label>
+          <input id="vault-bank" type="text" placeholder="e.g. Axis Bank Partner Portal" required class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none">
         </div>
         <div>
-          <label class="text-xs font-semibold text-slate-500">Description</label>
-          <textarea id="offer-desc" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none" rows="3"></textarea>
+          <label class="text-xs font-semibold text-slate-500">Portal Link / URL</label>
+          <input id="vault-url" type="text" placeholder="https://partner.bank.com" required class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none">
         </div>
         <div>
-          <label class="text-xs font-semibold text-slate-500">Validity Date</label>
-          <input id="offer-validity" type="text" placeholder="e.g. 31st Oct 2026" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="text-xs font-semibold text-slate-500">User ID</label>
+          <input id="vault-userid" type="text" required class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none">
         </div>
-        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl hover:bg-indigo-700 transition">Publish Offer</button>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">Password</label>
+          <input id="vault-password" type="text" required class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none">
+        </div>
+        <button type="submit" class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-xl">Save to Vault</button>
       </form>
     </div>
   </div>
 
-  <!-- Modal: Add User -->
-  <div id="modal-add-user" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
+  <!-- Modal: Create Sub-DSA / Agent -->
+  <div id="modal-add-agent" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
     <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-xl border border-slate-100">
       <div class="flex justify-between items-center mb-4">
-        <h3 class="font-bold text-lg text-slate-800">Add System User</h3>
-        <button onclick="closeModal('modal-add-user')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        <h3 class="font-bold text-lg text-slate-800">Add Multi-DSA / Sub Agent</h3>
+        <button onclick="closeModal('modal-add-agent')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <form onsubmit="handleAddUser(event)" class="space-y-4">
+      <form onsubmit="handleAddAgent(event)" class="space-y-4">
         <div>
-          <label class="text-xs font-semibold text-slate-500">Name</label>
-          <input id="user-input-name" type="text" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-        <div>
-          <label class="text-xs font-semibold text-slate-500">Email</label>
-          <input id="user-input-email" type="email" required class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+          <label class="text-xs font-semibold text-slate-500">Agent Full Name</label>
+          <input id="agent-name" type="text" required class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none">
         </div>
         <div>
           <label class="text-xs font-semibold text-slate-500">Role</label>
-          <select id="user-input-role" class="w-full mt-1 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-            <option value="dsa">DSA Partner</option>
-            <option value="admin">Admin</option>
+          <select id="agent-role" class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none">
+            <option value="Super Distributor">SM (Super Distributor)</option>
+            <option value="DSA Partner">DSA Partner</option>
+            <option value="Sub Agent">Sub Agent</option>
           </select>
         </div>
-        <button type="submit" class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl hover:bg-slate-800 transition">Create User</button>
+        <div>
+          <label class="text-xs font-semibold text-slate-500">PAN Card Number</label>
+          <input id="agent-pan" type="text" required class="w-full mt-1 border rounded-xl p-2.5 text-sm outline-none">
+        </div>
+        <button type="submit" class="w-full bg-slate-900 text-white font-semibold py-3 rounded-xl">Register Partner</button>
       </form>
     </div>
   </div>
 
-  <!-- Toast Notification Container -->
+  <!-- Toast Notifications Container -->
   <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
 
-  <!-- JAVASCRIPT & FIREBASE SCRIPT -->
+  <!-- JAVASCRIPT & FIREBASE LOGIC -->
   <script>
-    // -------------------------------------------------------------
-    // 1. FIREBASE CONFIGURATION
-    // -------------------------------------------------------------
+    // FIREBASE CONFIGURATION
     const firebaseConfig = {
       apiKey: "AIzaSyAg6g5EsjBjKleRsjwsM7GRW_cYUJgzfv0",
       authDomain: "finworld-e30c1.firebaseapp.com",
@@ -387,69 +555,112 @@
       storageBucket: "finworld-e30c1.firebasestorage.app",
       messagingSenderId: "121488796262",
       appId: "1:121488796262:web:25087c9f7fd955d0359ba7",
-        measurementId: "G-33VJPYKZ5G"
+      measurementId: "G-33VJPYKZ5G"
     };
 
-    // Initialize Firebase & Firestore
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // Application Global State
     let appData = {
-      currentUser: { name: "Ananya Sharma", role: "admin" },
+      currentUser: null,
+      isPunchedIn: false,
       leads: [],
+      banks: [],
       payouts: [],
-      users: [],
-      marketingOffers: [],
+      vault: [],
+      agents: [],
       messages: []
     };
 
-    // -------------------------------------------------------------
-    // 2. FIRESTORE REAL-TIME LISTENERS & DATA LOADERS
-    // -------------------------------------------------------------
-    function initFirebaseListeners() {
-      // Real-time Chat Sync
-      db.collection("messages").orderBy("id", "asc")
-        .onSnapshot((snapshot) => {
-          appData.messages = snapshot.docs.map(doc => doc.data());
-          renderChatter();
-        }, error => console.error("Chat sync error:", error));
+    // AUTHENTICATION & LOGIN
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value;
+      const role = document.getElementById('login-role').value;
+      
+      const name = email.split('@')[0].toUpperCase();
 
-      // Fetch Leads
-      db.collection("leads").onSnapshot((snapshot) => {
-        appData.leads = snapshot.docs.map(doc => doc.data());
+      appData.currentUser = { name, email, role };
+
+      document.getElementById('user-name').innerText = appData.currentUser.name;
+      document.getElementById('user-role').innerText = appData.currentUser.role;
+      document.getElementById('user-avatar-text').innerText = appData.currentUser.name.charAt(0);
+      document.getElementById('login-modal').classList.add('hidden');
+      
+      // Mandatory Profile Check Trigger
+      document.getElementById('onboarding-modal').classList.remove('hidden');
+      showToast(`Welcome to FinWorld Pro, ${name}!`, "success");
+    }
+
+    function saveMandatoryProfile(e) {
+      e.preventDefault();
+      document.getElementById('onboarding-modal').classList.add('hidden');
+      showToast("Profile verified! FinWorld Pro Dashboard Activated.", "success");
+    }
+
+    function handleLogout() {
+      appData.currentUser = null;
+      document.getElementById('login-modal').classList.remove('hidden');
+      showToast("Logged out successfully", "success");
+    }
+
+    // ATTENDANCE LOGIC (PUNCH IN / OUT)
+    function toggleAttendance() {
+      appData.isPunchedIn = !appData.isPunchedIn;
+      const btn = document.getElementById('punch-btn');
+      const status = document.getElementById('punch-status');
+
+      if(appData.isPunchedIn) {
+        btn.innerText = "Punch Out";
+        btn.classList.replace('bg-indigo-600', 'bg-rose-600');
+        status.innerText = "Punched In (" + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + ")";
+        status.classList.replace('text-amber-400', 'text-emerald-400');
+        showToast("Staff Punch-In Logged!", "success");
+      } else {
+        btn.innerText = "Punch In";
+        btn.classList.replace('bg-rose-600', 'bg-indigo-600');
+        status.innerText = "Punched Out";
+        status.classList.replace('text-emerald-400', 'text-amber-400');
+        showToast("Staff Punch-Out Logged!", "success");
+      }
+    }
+
+    // FIRESTORE SYNC
+    function initFirebaseListeners() {
+      db.collection("messages").orderBy("id", "asc").onSnapshot(s => {
+        appData.messages = s.docs.map(d => d.data());
+        renderChatter();
+      });
+
+      db.collection("leads").onSnapshot(s => {
+        appData.leads = s.docs.map(d => ({id: d.id, ...d.data()}));
         renderLeadsTable();
         renderAnalytics();
       });
 
-      // Fetch Payouts
-      db.collection("payouts").onSnapshot((snapshot) => {
-        appData.payouts = snapshot.docs.map(doc => doc.data());
-        renderPayoutsTable();
+      db.collection("vault").onSnapshot(s => {
+        appData.vault = s.docs.map(d => d.data());
+        renderVaultTable();
+      });
+
+      db.collection("agents").onSnapshot(s => {
+        appData.agents = s.docs.map(d => d.data());
+        renderAgentsTable();
         renderAnalytics();
       });
 
-      // Fetch Users
-      db.collection("users").onSnapshot((snapshot) => {
-        appData.users = snapshot.docs.map(doc => doc.data());
-        renderUsersTable();
-      });
-
-      // Fetch Marketing Offers
-      db.collection("marketingOffers").onSnapshot((snapshot) => {
-        appData.marketingOffers = snapshot.docs.map(doc => doc.data());
-        renderMarketingOffers();
-        renderAnalytics();
+      db.collection("banks").onSnapshot(s => {
+        appData.banks = s.docs.map(d => d.data());
+        renderBanksTable();
       });
     }
 
-    // -------------------------------------------------------------
-    // 3. TAB NAVIGATION SYSTEM
-    // -------------------------------------------------------------
+    // TAB SWITCHING
     function switchTab(tabName) {
-      const tabs = ['analytics', 'leads', 'payouts', 'users', 'marketing', 'chat'];
+      const tabs = ['analytics', 'leads', 'bankvault', 'banks', 'payouts', 'multiagent', 'permissions', 'chat'];
       tabs.forEach(tab => {
-        document.getElementById(`view-${tab}`).classList.add('hidden');
+        const viewEl = document.getElementById(`view-${tab}`);
+        if(viewEl) viewEl.classList.add('hidden');
         const navEl = document.getElementById(`nav-${tab}`);
         if(navEl) {
           navEl.classList.remove('bg-indigo-600', 'text-slate-100');
@@ -457,212 +668,155 @@
         }
       });
 
-      document.getElementById(`view-${tabName}`).classList.remove('hidden');
+      document.getElementById(`view-${tabName}`)?.classList.remove('hidden');
       const activeNav = document.getElementById(`nav-${tabName}`);
       if(activeNav) {
         activeNav.classList.add('bg-indigo-600', 'text-slate-100');
         activeNav.classList.remove('text-slate-400', 'hover:bg-slate-800');
       }
-
-      // Update Top Header Title
-      const titles = {
-        analytics: "Dashboard Overview",
-        leads: "Leads Management",
-        payouts: "Payouts & Wallet Transactions",
-        users: "User Permissions & Roles",
-        marketing: "Marketing & Promotional Offers",
-        chat: "Real-time Support Desk"
-      };
-      document.getElementById('page-title').innerText = titles[tabName] || "Dashboard";
     }
 
-    // -------------------------------------------------------------
-    // 4. UI RENDER FUNCTIONS
-    // -------------------------------------------------------------
+    // RENDERING
     function renderAnalytics() {
       document.getElementById('stat-total-leads').innerText = appData.leads.length;
-      
-      const totalDisbursed = appData.leads
-        .filter(l => l.status === 'Disbursed')
-        .reduce((sum, l) => sum + Number(l.amount || 0), 0);
+      document.getElementById('stat-active-dsa').innerText = appData.agents.length;
+      const totalDisbursed = appData.leads.filter(l => l.status === 'Disbursed').reduce((s, l) => s + Number(l.amount||0), 0);
       document.getElementById('stat-total-disbursed').innerText = `₹${totalDisbursed.toLocaleString('en-IN')}`;
-
-      const pendingPay = appData.payouts
-        .filter(p => p.status === 'Pending')
-        .reduce((sum, p) => sum + Number(p.amount || 0), 0);
-      document.getElementById('stat-pending-payouts').innerText = `₹${pendingPay.toLocaleString('en-IN')}`;
-
-      document.getElementById('stat-active-offers').innerText = appData.marketingOffers.length;
     }
 
     function renderLeadsTable() {
       const tbody = document.getElementById('leads-table-body');
       tbody.innerHTML = appData.leads.map(lead => `
-        <tr class="hover:bg-slate-50/50 transition">
+        <tr class="hover:bg-slate-50 transition">
           <td class="p-4 font-semibold text-slate-800">${lead.name}</td>
           <td class="p-4">${lead.phone}</td>
-          <td class="p-4">${lead.product}</td>
+          <td class="p-4">${lead.product} (${lead.bank || 'HDFC'})</td>
           <td class="p-4 font-semibold">₹${Number(lead.amount).toLocaleString('en-IN')}</td>
+          <td class="p-4">${lead.dsa}</td>
           <td class="p-4">
             <span class="px-2.5 py-1 text-xs rounded-full font-medium ${
               lead.status === 'Disbursed' ? 'bg-emerald-50 text-emerald-600' :
-              lead.status === 'Under Review' ? 'bg-amber-50 text-amber-600' : 'bg-slate-100 text-slate-600'
+              lead.status === 'Under Review' ? 'bg-amber-50 text-amber-600' : 'bg-indigo-50 text-indigo-600'
             }">${lead.status}</span>
           </td>
-          <td class="p-4">${lead.dsa}</td>
-        </tr>
-      `).join('');
-    }
-
-    function renderPayoutsTable() {
-      const tbody = document.getElementById('payouts-table-body');
-      tbody.innerHTML = appData.payouts.map(p => `
-        <tr class="hover:bg-slate-50/50 transition">
-          <td class="p-4 font-mono text-xs text-slate-500">${p.id}</td>
-          <td class="p-4 font-medium text-slate-800">${p.dsaName}</td>
-          <td class="p-4 font-semibold text-slate-800">₹${Number(p.amount).toLocaleString('en-IN')}</td>
           <td class="p-4">
-            <span class="px-2.5 py-1 text-xs rounded-full font-medium ${p.status === 'Paid' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}">${p.status}</span>
+            <button onclick="updateLeadStatus('${lead.id}', 'Disbursed')" class="text-xs bg-emerald-600 text-white px-2 py-1 rounded">Mark Disbursed</button>
           </td>
-          <td class="p-4 text-xs text-slate-400">${p.date}</td>
         </tr>
       `).join('');
     }
 
-    function renderUsersTable() {
-      const tbody = document.getElementById('users-table-body');
-      tbody.innerHTML = appData.users.map(u => `
-        <tr class="hover:bg-slate-50/50 transition">
-          <td class="p-4 font-semibold text-slate-800">${u.name}</td>
-          <td class="p-4">${u.email}</td>
-          <td class="p-4"><span class="uppercase text-xs tracking-wider px-2 py-0.5 rounded font-bold ${u.role==='admin'?'bg-indigo-50 text-indigo-600':'bg-slate-100 text-slate-600'}">${u.role}</span></td>
+    function renderVaultTable() {
+      const tbody = document.getElementById('vault-table-body');
+      tbody.innerHTML = appData.vault.map(v => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-4 font-semibold text-slate-800">${v.bank}</td>
+          <td class="p-4 text-indigo-600"><a href="${v.url}" target="_blank">Open Link <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i></a></td>
+          <td class="p-4 font-mono text-xs">${v.userid}</td>
+          <td class="p-4 font-mono text-xs">••••••••</td>
+          <td class="p-4"><span class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-xs">Authorized DSA</span></td>
         </tr>
       `).join('');
     }
 
-    function renderMarketingOffers() {
-      const grid = document.getElementById('offers-grid');
-      grid.innerHTML = appData.marketingOffers.map(offer => `
-        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm relative flex flex-col justify-between">
-          <div>
-            <div class="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center mb-4">
-              <i class="fa-solid fa-gift"></i>
-            </div>
-            <h3 class="font-bold text-slate-800 text-base">${offer.title}</h3>
-            <p class="text-sm text-slate-500 mt-2">${offer.desc}</p>
-          </div>
-          <div class="mt-6 pt-4 border-t border-slate-50 flex justify-between items-center">
-            <span class="text-xs text-slate-400">Valid Till: ${offer.validity}</span>
-            <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">Active</span>
-          </div>
-        </div>
+    function renderAgentsTable() {
+      const tbody = document.getElementById('multiagent-table-body');
+      tbody.innerHTML = appData.agents.map(a => `
+        <tr class="hover:bg-slate-50 transition">
+          <td class="p-4 font-semibold text-slate-800">${a.name}</td>
+          <td class="p-4 font-bold text-xs uppercase text-indigo-600">${a.role}</td>
+          <td class="p-4">FinWorld HQ</td>
+          <td class="p-4 font-mono text-xs">${a.pan}</td>
+          <td class="p-4"><span class="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded text-xs">Active</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderBanksTable() {
+      const tbody = document.getElementById('banks-table-body');
+      tbody.innerHTML = appData.banks.map(b => `
+        <tr>
+          <td class="p-4 font-semibold">${b.name}</td>
+          <td class="p-4">${b.product}</td>
+          <td class="p-4 text-emerald-600 font-bold">${b.commission}%</td>
+          <td class="p-4">${b.cycle}</td>
+        </tr>
       `).join('');
     }
 
     function renderChatter() {
       const container = document.getElementById('chat-messages-container');
-      container.innerHTML = appData.messages.map(msg => `
+      container.innerHTML = appData.messages.map(m => `
         <div class="flex flex-col space-y-1">
-          <div class="flex items-center space-x-2">
-            <span class="text-xs font-bold text-slate-700">${msg.sender}</span>
-            <span class="text-[10px] text-slate-400">${msg.time}</span>
-          </div>
-          <div class="bg-slate-100 text-slate-800 p-3 rounded-2xl rounded-tl-none text-sm max-w-md w-fit">
-            ${msg.text}
-          </div>
+          <span class="text-xs font-bold text-slate-700">${m.sender}</span>
+          <div class="bg-slate-100 p-3 rounded-xl text-sm max-w-md w-fit">${m.text}</div>
         </div>
       `).join('');
-      container.scrollTop = container.scrollHeight;
     }
 
-    // -------------------------------------------------------------
-    // 5. FIREBASE ACTIONS (WRITING TO FIRESTORE)
-    // -------------------------------------------------------------
+    // ACTIONS
     function handleAddLead(e) {
       e.preventDefault();
-      const leadData = {
+      const lead = {
         name: document.getElementById('lead-name').value,
         phone: document.getElementById('lead-phone').value,
         product: document.getElementById('lead-product').value,
+        bank: document.getElementById('lead-bank').value,
         amount: Number(document.getElementById('lead-amount').value),
-        status: "Under Review",
-        dsa: appData.currentUser.name,
-        createdAt: new Date().toISOString()
+        status: "Applied",
+        dsa: appData.currentUser ? appData.currentUser.name : "DSA Agent"
       };
-
-      db.collection("leads").add(leadData).then(() => {
-        closeModal('modal-add-lead');
-        e.target.reset();
-        showToast("Lead saved to Firestore!", "success");
-      }).catch(err => showToast("Error saving lead", "error"));
+      db.collection("leads").add(lead).then(() => { closeModal('modal-add-lead'); e.target.reset(); });
     }
 
-    function handleAddOffer(e) {
+    function handleAddVault(e) {
       e.preventDefault();
-      const offerData = {
-        title: document.getElementById('offer-title').value,
-        desc: document.getElementById('offer-desc').value,
-        validity: document.getElementById('offer-validity').value
+      const data = {
+        bank: document.getElementById('vault-bank').value,
+        url: document.getElementById('vault-url').value,
+        userid: document.getElementById('vault-userid').value,
+        password: document.getElementById('vault-password').value
       };
-
-      db.collection("marketingOffers").add(offerData).then(() => {
-        closeModal('modal-add-offer');
-        e.target.reset();
-        showToast("Marketing offer published!", "success");
-      });
+      db.collection("vault").add(data).then(() => { closeModal('modal-add-vault'); e.target.reset(); });
     }
 
-    function handleAddUser(e) {
+    function handleAddAgent(e) {
       e.preventDefault();
-      const userData = {
-        name: document.getElementById('user-input-name').value,
-        email: document.getElementById('user-input-email').value,
-        role: document.getElementById('user-input-role').value
+      const agent = {
+        name: document.getElementById('agent-name').value,
+        role: document.getElementById('agent-role').value,
+        pan: document.getElementById('agent-pan').value
       };
+      db.collection("agents").add(agent).then(() => { closeModal('modal-add-agent'); e.target.reset(); });
+    }
 
-      db.collection("users").add(userData).then(() => {
-        closeModal('modal-add-user');
-        e.target.reset();
-        showToast("User created successfully!", "success");
+    function updateLeadStatus(docId, newStatus) {
+      db.collection("leads").doc(docId).update({ status: newStatus }).then(() => {
+        showToast("Lead updated to " + newStatus, "success");
       });
     }
 
     function handleSendChat(e) {
       e.preventDefault();
       const input = document.getElementById('chat-msg-input');
-      const text = input.value.trim();
-      if(!text) return;
-
-      const msgData = {
-        id: Date.now(),
-        sender: appData.currentUser.name,
-        text: text,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-
-      db.collection("messages").add(msgData).then(() => {
-        input.value = "";
-      });
+      if(!input.value) return;
+      db.collection("messages").add({ id: Date.now(), sender: appData.currentUser?.name || "Agent", text: input.value });
+      input.value = "";
     }
 
-    // Modal Helpers
     function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
     function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-    // Toast Notifications
-    function showToast(message, type = 'success') {
+    function showToast(msg, type = 'success') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
-      toast.className = `px-4 py-3 rounded-xl text-white text-sm shadow-lg flex items-center space-x-2 transition-all transform duration-300 ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
-      toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i><span>${message}</span>`;
+      toast.className = `px-4 py-3 rounded-xl text-white text-sm shadow-lg ${type === 'success' ? 'bg-emerald-600' : 'bg-rose-600'}`;
+      toast.innerText = msg;
       container.appendChild(toast);
       setTimeout(() => toast.remove(), 3000);
     }
 
-    // App Initialization
-    window.addEventListener('DOMContentLoaded', () => {
-      initFirebaseListeners();
-    });
+    window.addEventListener('DOMContentLoaded', () => { initFirebaseListeners(); });
   </script>
 </body>
 </html>
