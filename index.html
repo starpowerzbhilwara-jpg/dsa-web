@@ -165,43 +165,32 @@
                         <h3 class="text-2xl font-extrabold text-amber-600 mt-2" id="stat-payouts">₹0</h3>
                     </div>
                 </div>
+
+                <!-- Metrics Grid -->
+                <div class="metrics-grid grid grid-cols-1 md:grid-cols-5 gap-4 my-6">
+                    <div class="card bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Total Leads</span>
+                        <h2 id="totalLeads" class="text-2xl font-extrabold text-slate-800 mt-2">2</h2>
+                    </div>
+                    <div class="card bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Disbursed Volume</span>
+                        <h2 id="disbursedVolume" class="text-2xl font-extrabold text-emerald-500 mt-2">₹40,00,000</h2>
+                    </div>
+                    <div class="card bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Total Portfolio</span>
+                        <h2 id="totalPortfolio" class="text-2xl font-extrabold text-blue-600 mt-2">₹0</h2>
+                    </div>
+                    <div class="card bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Total Gain (Profit)</span>
+                        <h2 id="totalGain" class="text-2xl font-extrabold text-emerald-600 mt-2">₹0</h2>
+                    </div>
+                    <div class="card bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="text-xs font-bold text-slate-500 uppercase">Payout Margin</span>
+                        <h2 id="payoutMargin" class="text-2xl font-extrabold text-amber-600 mt-2">0%</h2>
+                    </div>
+                </div>
             </div>
 
-            <!-- Main Stats Grid (Naye Reports/Metrics ke sath) -->
-  <div class="metrics-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px;">
-  
-  <!-- Existing Cards -->
-  <div class="card" style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-    <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Leads</span>
-    <h2 id="totalLeads" style="font-size: 28px; font-weight: 800; color: #1e293b; margin-top: 10px;">2</h2>
-  </div>
-
-  <div class="card" style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-    <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Disbursed Volume</span>
-    <h2 id="disbursedVolume" style="font-size: 28px; font-weight: 800; color: #10b981; margin-top: 10px;">₹40,00,000</h2>
-  </div>
-
-  <!-- NAYE ADDED CARDS BELOW -->
-
-  <!-- Total Portfolio Card -->
-  <div class="card" style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-    <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Portfolio</span>
-    <h2 id="totalPortfolio" style="font-size: 28px; font-weight: 800; color: #2563eb; margin-top: 10px;">₹0</h2>
-  </div>
-
-  <!-- Total Net Gain Card -->
-  <div class="card" style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-    <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Total Gain (Profit)</span>
-    <h2 id="totalGain" style="font-size: 28px; font-weight: 800; color: #059669; margin-top: 10px;">₹0</h2>
-  </div>
-
-  <!-- Payouts Margin Card -->
-  <div class="card" style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-    <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase;">Payout Margin</span>
-    <h2 id="payoutMargin" style="font-size: 28px; font-weight: 800; color: #d97706; margin-top: 10px;">0%</h2>
-  </div>
-
-</div>
             <!-- LEAD DASHBOARD -->
             <div id="sec-leads" class="content-sec hidden space-y-6">
                 <div class="flex justify-between items-center bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -219,7 +208,7 @@
                                 <th class="p-3">Applied Bank</th>
                                 <th class="p-3">Status</th>
                                 <th class="p-3">Loan Account Number</th>
-                                <th class="p-3">loan amount</th>
+                                <th class="p-3">Loan Amount</th>
                                 <th class="p-3">Action</th>
                             </tr>
                         </thead>
@@ -277,11 +266,11 @@
                                 <th class="p-3">Bank / NBFC</th>
                                 <th class="p-3">Category</th>
                                 <th class="p-3">Customer</th>
-                                <th class="p-3">location</th>
-                                <th class="p-3">Senction Loan</th>
+                                <th class="p-3">Location</th>
+                                <th class="p-3">Sanction Loan</th>
                                 <th class="p-3">Disbursed (₹)</th>
                                 <th class="p-3">Disburb Date</th>
-                                <th class="p-3">Sm Name</th>
+                                <th class="p-3">SM Name</th>
                                 <th class="p-3">Status</th>
                                 <th class="p-3">Operation</th>
                             </tr>
@@ -303,7 +292,7 @@
                             <p class="text-xs text-slate-500">GSTIN: 08AAAAA0000A1Z5 | Corporate Office</p>
                         </div>
                         <div class="text-right">
-                            <h4 class="text-lg font-bold"> INVOICE</h4>
+                            <h4 class="text-lg font-bold">INVOICE</h4>
                             <p class="text-xs text-slate-500">Inv #: FW-2026-0042</p>
                             <p class="text-xs text-slate-500">Date: 27-07-2026</p>
                         </div>
@@ -373,7 +362,7 @@
                                 <th class="p-3">Name</th>
                                 <th class="p-3">Role</th>
                                 <th class="p-3">Phone</th>
-                                <th class="p-3">city</th>
+                                <th class="p-3">City</th>
                                 <th class="p-3">Status</th>
                             </tr>
                         </thead>
@@ -509,18 +498,16 @@
                     <option value="Home Loan">Home Loan (HL)</option>
                     <option value="Business Loan">Business Loan (BL)</option>
                     <option value="Credit Card">Credit Card</option>
-                    <option value="Vehicle Loan">Vehicle Loan<option>
-                    <option value="Mortadge Loan">Mortadge Loan<option>
-                    <option Value="Education Loan">Education Loan<Option>
+                    <option value="Vehicle Loan">Vehicle Loan</option>
+                    <option value="Mortgage Loan">Mortgage Loan</option>
+                    <option value="Education Loan">Education Loan</option>
                 </select>
-                <input type="Employment Type" id="cust-apply-employment" placeholder="Employment Type" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
                 <select id="cust-apply-employment" class="w-full border p-2.5 text-sm rounded-xl outline-none">
-                    <option value="Salaried">salaried<option>
-                    <option value="Self-Employed">Self-Employed<option>
+                    <option value="Salaried">Salaried</option>
+                    <option value="Self-Employed">Self-Employed</option>
                 </select>
-                <input type="if salaried" id="cust-apply-salary" placeholder="Salary / Income" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
-                <input type="if self-employed" id="cust-apply-business" placeholder="Business / Profession" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
-                </select>
+                <input type="text" id="cust-apply-salary" placeholder="Salary / Income" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="cust-apply-business" placeholder="Business / Profession" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
                 <input type="text" id="cust-apply-city" placeholder="City / Pincode" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeModal('modal-cust-apply')" class="px-4 py-2 bg-slate-100 text-xs font-bold rounded-xl">Cancel</button>
@@ -541,11 +528,11 @@
                 <input type="text" id="dsa-apply-name" placeholder="Full Name / Agency" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
                 <input type="tel" id="dsa-apply-phone" placeholder="Mobile Number" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
                 <input type="text" id="dsa-apply-city" placeholder="City" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
-                <input Type="text" id="dsa-apply-email" placeholder="Email Address" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
-                <input type="text" id="Pan Card Number" Placeholder="pan Card Numbrer" requird class="w-full border p-2.5 text-sm rounded-xl outline-none">
-                <input type="text" id="Aadhar card Number" Place holder="Aadhar card Number"required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="email" id="dsa-apply-email" placeholder="Email Address" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="dsa-pan-number" placeholder="PAN Card Number" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="dsa-aadhar-number" placeholder="Aadhaar Card Number" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
                 <input type="text" id="dsa-apply-kyc" placeholder="Govt Identification Details" class="w-full border p-2.5 text-sm rounded-xl outline-none">
-                <input type="text" id="Sm Name"placeholder="sm name"required class="w-full border p-2.5 text-sm rounded-xl outline-none">
+                <input type="text" id="dsa-sm-name" placeholder="SM Name" required class="w-full border p-2.5 text-sm rounded-xl outline-none">
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="closeModal('modal-dsa-apply')" class="px-4 py-2 bg-slate-100 text-xs font-bold rounded-xl">Cancel</button>
                     <button type="submit" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl">Register DSA</button>
@@ -663,7 +650,10 @@
 
     <!-- JAVASCRIPT ENGINE & LOGIC -->
     <script>
-        // System Global State & Mock Data
+        const API_URL = "http://localhost:5000/api";
+        const API_BASE_URL = "https://finworld-backend.onrender.com";
+
+        // Global State & Mock Data
         let appData = {
             currentUser: null,
             leads: [
@@ -715,12 +705,8 @@
         }
 
         // Modal Controls
-        function openModal(id) {
-            document.getElementById(id).classList.remove("hidden");
-        }
-        function closeModal(id) {
-            document.getElementById(id).classList.add("hidden");
-        }
+        function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
+        function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
 
         // Navigation Controller
         function showSection(sectionId) {
@@ -771,7 +757,6 @@
 
         // Render Functions
         function renderAllData() {
-            // Stats
             document.getElementById("stat-total-leads").innerText = appData.leads.length;
             const totalDisbursed = appData.payouts.reduce((acc, curr) => acc + Number(curr.disbursed), 0);
             document.getElementById("stat-disbursed").innerText = "₹" + totalDisbursed.toLocaleString("en-IN");
@@ -779,7 +764,6 @@
             const totalPayouts = appData.payouts.reduce((acc, curr) => acc + Number(curr.payout), 0);
             document.getElementById("stat-payouts").innerText = "₹" + totalPayouts.toLocaleString("en-IN");
 
-            // Leads
             const tbodyLeads = document.getElementById("table-leads");
             tbodyLeads.innerHTML = appData.leads.map(l => `
                 <tr class="hover:bg-slate-50">
@@ -789,11 +773,12 @@
                     <td class="p-3">${l.city}</td>
                     <td class="p-3 font-medium">${l.bank}</td>
                     <td class="p-3"><span class="bg-sky-100 text-sky-800 px-2 py-0.5 rounded text-xs font-bold">${l.status}</span></td>
+                    <td class="p-3">-</td>
+                    <td class="p-3">-</td>
                     <td class="p-3"><button onclick="showToast('Action Updated', 'info')" class="text-sky-600 hover:underline font-bold text-xs">Update</button></td>
                 </tr>
             `).join("");
 
-            // DSA Approvals
             const tbodyDSA = document.getElementById("table-dsa-approvals");
             tbodyDSA.innerHTML = appData.dsaApprovals.map(d => `
                 <tr class="hover:bg-slate-50">
@@ -808,7 +793,6 @@
                 </tr>
             `).join("");
 
-            // DSA Portals Grid
             const gridPortals = document.getElementById("grid-dsa-banks");
             gridPortals.innerHTML = appData.banks.map(b => `
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex flex-col justify-between">
@@ -825,7 +809,6 @@
                 </div>
             `).join("");
 
-            // Payouts
             const tbodyPayouts = document.getElementById("table-payouts");
             tbodyPayouts.innerHTML = appData.payouts.map(p => `
                 <tr class="hover:bg-slate-50">
@@ -834,14 +817,16 @@
                     <td class="p-3">${p.bank}</td>
                     <td class="p-3">${p.category}</td>
                     <td class="p-3">${p.customer}</td>
+                    <td class="p-3">-</td>
+                    <td class="p-3">-</td>
                     <td class="p-3 font-semibold">₹${Number(p.disbursed).toLocaleString('en-IN')}</td>
-                    <td class="p-3 font-bold text-emerald-600">₹${Number(p.payout).toLocaleString('en-IN')}</td>
+                    <td class="p-3">-</td>
+                    <td class="p-3">-</td>
                     <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs font-bold">${p.status}</span></td>
                     <td class="p-3"><button onclick="showToast('Printed Voucher', 'success')" class="text-xs text-slate-600 underline">Voucher</button></td>
                 </tr>
             `).join("");
 
-            // Calling Data
             const tbodyCalling = document.getElementById("table-calling");
             tbodyCalling.innerHTML = appData.calling.map(c => `
                 <tr class="hover:bg-slate-50">
@@ -853,7 +838,6 @@
                 </tr>
             `).join("");
 
-            // User List
             const tbodyUsers = document.getElementById("table-users");
             tbodyUsers.innerHTML = appData.users.map(u => `
                 <tr class="hover:bg-slate-50">
@@ -862,14 +846,13 @@
                     <td class="p-3 font-semibold">${u.name}</td>
                     <td class="p-3"><span class="uppercase text-[10px] bg-slate-200 px-2 py-0.5 rounded font-bold">${u.role}</span></td>
                     <td class="p-3">${u.phone}</td>
+                    <td class="p-3">-</td>
                     <td class="p-3"><span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-xs font-bold">${u.status}</span></td>
                 </tr>
             `).join("");
 
-            // Sales Managers
             renderSMGrid(appData.salesManagers);
 
-            // Products
             const gridProd = document.getElementById("grid-products");
             gridProd.innerHTML = appData.products.map(p => `
                 <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -879,7 +862,6 @@
                 </div>
             `).join("");
 
-            // Bank Configuration
             const tbodyBankMaster = document.getElementById("table-bank-master");
             tbodyBankMaster.innerHTML = appData.banks.map((b, idx) => `
                 <tr class="hover:bg-slate-50">
@@ -910,14 +892,12 @@
             `).join("");
         }
 
-        // Action Executions
         function approveDSA(id) {
             const index = appData.dsaApprovals.findIndex(d => d.id === id);
             if (index !== -1) {
                 const item = appData.dsaApprovals[index];
                 item.status = "Approved";
                 
-                // Add to active users automatically
                 const newUserId = "dsa_" + item.name.toLowerCase().replace(/[^a-z0-9]/g, "").substring(0, 8);
                 appData.users.push({
                     userid: newUserId,
@@ -1040,7 +1020,6 @@
             showToast("Product Master Saved!", "success");
         }
 
-        // Bank Master Config Logic
         function handleSaveBankMaster(e) {
             e.preventDefault();
             const editIdx = parseInt(document.getElementById("edit-bank-index").value);
@@ -1085,7 +1064,6 @@
             showToast("Bank Configuration Deleted", "info");
         }
 
-        // SM Location Filter & Drag-Drop Logic
         function filterSMByLocation() {
             const val = document.getElementById("sm-search-location").value.toLowerCase();
             const filtered = appData.salesManagers.filter(s => 
@@ -1122,118 +1100,101 @@
         }
 
         async function processSMFile(file) {
-    // 1. ब्राउज़र में लोकल दिखाने के लिए रीड करना
-    const reader = new FileReader();
-    reader.onload = async function(evt) {
-        const lines = evt.target.result.split("\n");
-        let count = 0;
-        
-        for (let i = 1; i < lines.length; i++) {
-            const row = lines[i].split(",");
-            if (row.length >= 4) {
-                appData.salesManagers.unshift({
-                    name: row[0].trim(),
-                    phone: row[1].trim(),
-                    email: row[2].trim(),
-                    city: row[3].trim(),
-                    designation: row[4] ? row[4].trim() : "SM"
-                });
-                count++;
+            const reader = new FileReader();
+            reader.onload = async function(evt) {
+                const lines = evt.target.result.split("\n");
+                let count = 0;
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const row = lines[i].split(",");
+                    if (row.length >= 4) {
+                        appData.salesManagers.unshift({
+                            name: row[0].trim(),
+                            phone: row[1].trim(),
+                            email: row[2].trim(),
+                            city: row[3].trim(),
+                            designation: row[4] ? row[4].trim() : "SM"
+                        });
+                        count++;
+                    }
+                }
+
+                const formData = new FormData();
+                formData.append("file", file);
+
+                try {
+                    const response = await fetch(`${API_URL}/sm/upload-csv`, {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        showToast(`Parsed and Saved ${count} Sales Managers permanently!`, "success");
+                    } else {
+                        showToast("File uploaded locally, but failed to save in Backend.", "error");
+                    }
+                } catch (error) {
+                    console.error("Backend Upload Error:", error);
+                    showToast("Backend Server is Offline!", "error");
+                }
+
+                renderAllData();
+            };
+
+            reader.readAsText(file);
+        }
+
+        async function fetchDashboardMetrics() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/reports/portfolio-summary`);
+                const data = await response.json();
+
+                if(data) {
+                    document.getElementById('totalPortfolio').innerText = `₹${data.totalPortfolio.toLocaleString('en-IN')}`;
+                    document.getElementById('totalGain').innerText = `₹${data.totalGain.toLocaleString('en-IN')}`;
+                }
+            } catch (error) {
+                console.log("Backend offline ya connecting state mein hai:", error);
             }
         }
 
-        // 2. फ़ाइल को बैकएंड सर्वर पर हमेशा के लिए सेव करने भेजना
-        const formData = new FormData();
-        formData.append("file", file);
-
-        try {
-            const response = await fetch(`${API_URL}/sm/upload-csv`, {
-                method: "POST",
-                body: formData
-            });
-
-            if (response.ok) {
-                showToast(`Parsed and Saved ${count} Sales Managers permanently!`, "success");
-            } else {
-                showToast("File uploaded locally, but failed to save in Backend.", "error");
+        window.addEventListener("DOMContentLoaded", async () => {
+            try {
+                const res = await fetch(`${API_URL}/sync-all`);
+                const data = await res.json();
+                
+                if (data) {
+                    appData.salesManagers = data.salesManagers || [];
+                    appData.leads = data.leads || [];
+                    appData.dsaApprovals = data.dsaApprovals || [];
+                    appData.payouts = data.payouts || [];
+                }
+            } catch (err) {
+                console.error("Backend Server se data connect nahi ho paya:", err);
             }
-        } catch (error) {
-            console.error("Backend Upload Error:", error);
-            showToast("Backend Server is Offline!", "error");
-        }
-
-        renderAllData();
-    };
-
-    reader.readAsText(file);
-}
-
-       const API_URL = "http://localhost:5000/api";
-
-window.addEventListener("DOMContentLoaded", async () => {
-    try {
-        // बैकएंड डेटाबेस से डेटा मंगाना
-        const res = await fetch(`${API_URL}/sync-all`);
-        const data = await res.json();
-        
-        // अगर बैकएंड में डेटा है तो appData को उससे भरें
-        if (data) {
-            appData.salesManagers = data.salesManagers || [];
-            appData.leads = data.leads || [];
-            appData.dsaApprovals = data.dsaApprovals || [];
-            appData.payouts = data.payouts || [];
-        }
-    } catch (err) {
-        console.error("Backend Server से डेटा कनेक्ट नहीं हो पाया:", err);
-    }
-    
-    // स्क्रीन पर डेटा रेंडर करें
-    renderAllData();
-});
+            
+            fetchDashboardMetrics();
+            renderAllData();
+        });
     </script>
-    <script>
-  // Render deployment ke baad apni Backend API link yahan update kar dena
-  const API_BASE_URL = "https://finworld-backend.onrender.com";
 
-  async function fetchDashboardMetrics() {
-    try {
-      // 1. Backend Portfolio & Gain API call
-      const response = await fetch(`${API_BASE_URL}/api/reports/portfolio-summary`);
-      const data = await response.json();
+    <!-- Firebase App Configuration Module -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
-      // 2. HTML Text update karna
-      if(data) {
-        document.getElementById('totalPortfolio').innerText = `₹${data.totalPortfolio.toLocaleString('en-IN')}`;
-        document.getElementById('totalGain').innerText = `₹${data.totalGain.toLocaleString('en-IN')}`;
-      }
-    } catch (error) {
-      console.log("Backend offline ya connecting state mein hai:", error);
-    }
-  }
+        const firebaseConfig = {
+            apiKey: "AIzaSyAg6g5EsjBjKleRsjwsM7GRW_cYUJgzfv0",
+            authDomain: "finworld-e30c1.firebaseapp.com",
+            projectId: "finworld-e30c1",
+            storageBucket: "finworld-e30c1.firebasestorage.app",
+            messagingSenderId: "121488796262",
+            appId: "1:121488796262:web:25087c9f7fd955d0359ba7",
+            measurementId: "G-33VJPYKZ5G"
+        };
 
-  // Page open hone par function run hoga
-  window.addEventListener('DOMContentLoaded', fetchDashboardMetrics);
-</script>
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAg6g5EsjBjKleRsjwsM7GRW_cYUJgzfv0",
-  authDomain: "finworld-e30c1.firebaseapp.com",
-  projectId: "finworld-e30c1",
-  storageBucket: "finworld-e30c1.firebasestorage.app",
-  messagingSenderId: "121488796262",
-  appId: "1:121488796262:web:25087c9f7fd955d0359ba7",
-  measurementId: "G-33VJPYKZ5G"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
 </body>
 </html>
